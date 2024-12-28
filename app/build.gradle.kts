@@ -6,12 +6,13 @@ plugins {
 
 android {
     namespace = "com.example.alp_clement_romeo_evan"
-    compileSdk = 34
+    compileSdk = 35 //change to 34 for lower agp
 
     defaultConfig {
         applicationId = "com.example.alp_clement_romeo_evan"
         minSdk = 24
-        targetSdk = 34
+        //noinspection EditedTargetSdkVersion
+        targetSdk = 35 //change to 34 for lower agp
         versionCode = 1
         versionName = "1.0"
 
