@@ -34,12 +34,12 @@ fun LoginView(
                     Color(0xFFFFD2D9),
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
-                .size(600.dp),
+                .size(700.dp),
             contentAlignment = Alignment.TopCenter
         ) {
             Column(
                 modifier = Modifier
-                    .padding(horizontal = 32.dp, vertical = 24.dp),
+                    .padding(horizontal = 32.dp, vertical = 170.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -98,12 +98,13 @@ fun LoginView(
         }
     }
 }
-    @Preview(showBackground = true, showSystemUi = true)
-    @Composable
-    fun LoginPreview() {
-        ALP_Clement_Romeo_EvanTheme {
-            LoginView()
-        }
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun LoginPreview() {
+    ALP_Clement_Romeo_EvanTheme {
+        LoginView()
     }
+}
 
 
