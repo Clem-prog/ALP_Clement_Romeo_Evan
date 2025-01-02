@@ -33,7 +33,7 @@ fun SignUpView(
                 .fillMaxWidth()
                 .padding(top = 180.dp)
                 .background(Color(0xFFFFD2D9), shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                .size(600.dp),
+                .size(700.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(
