@@ -84,7 +84,7 @@ fun AnnouncementPreview() {
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Announcement",
+                                text = "Announcements",
                                 fontSize = 30.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
@@ -137,7 +137,7 @@ fun AnnouncementPreview() {
                                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
                             ) {
                                 Image(
-                                    painter = painterResource(R.drawable.notifications),
+                                    painter = painterResource(R.drawable.home),
                                     contentDescription = "Announcement",
                                     modifier = Modifier.size(40.dp)
                                 )
