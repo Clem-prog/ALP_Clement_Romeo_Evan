@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +21,60 @@ import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateAnnouncementView() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFE0FFE0))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Create Announcement:",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.align(Alignment.Start)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = "",
+            onValueChange = { /* Handle text change */ },
+            placeholder = { Text("Insert Announcement Here") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = Color.White,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent
+            )
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            Button(
+                onClick = {  },
+                modifier = Modifier.width(120.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFF9FFC9),
+                    contentColor = Color.Black
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("Publish")
+            }
+
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun CreateAnnouncementPreview() {
     ALP_Clement_Romeo_EvanTheme {
         Scaffold(
             topBar = {
@@ -52,16 +107,16 @@ fun CreateAnnouncementView() {
                             contentPadding = PaddingValues(1.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
                         ) {
-                            Icon(
+                            Image(
                                 painter = painterResource(R.drawable.profile),
-                                contentDescription = "Profile Icon",
+                                contentDescription = "profile",
                                 modifier = Modifier.size(40.dp)
                             )
                         }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
+                        .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)) // Optional rounded corners
                 )
             },
             bottomBar = {
@@ -73,94 +128,60 @@ fun CreateAnnouncementView() {
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier.padding(horizontal = 25.dp)
                     ) {
-                        IconButton(onClick = { /* Navigate to Home */ }) {
-                            Icon(
-                                painter = painterResource(R.drawable.home),
-                                contentDescription = "Home Icon",
-                                modifier = Modifier.size(40.dp)
-                            )
-                        }
-                        IconButton(onClick = { /* Navigate to Add */ }) {
-                            Icon(
-                                painter = painterResource(R.drawable.event),
-                                contentDescription = "Add Icon",
-                                modifier = Modifier.size(40.dp)
-                            )
-                        }
-                        IconButton(onClick = { /* Navigate to Notifications */ }) {
-                            Icon(
-                                painter = painterResource(R.drawable.notifications),
-                                contentDescription = "Notifications Icon",
-                                modifier = Modifier.size(40.dp)
-                            )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Button(
+                                onClick = { /* Handle home click */ },
+                                modifier = Modifier.size(50.dp),
+                                contentPadding = PaddingValues(1.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.home),
+                                    contentDescription = "home",
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
+                            Spacer(Modifier.weight(1f))
+                            Button(
+                                onClick = { /* Handle add click */ },
+                                modifier = Modifier.size(50.dp),
+                                contentPadding = PaddingValues(1.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.event),
+                                    contentDescription = "add",
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
+                            Spacer(Modifier.weight(1f))
+                            Button(
+                                onClick = { /* Handle event click */ },
+                                modifier = Modifier.size(50.dp),
+                                contentPadding = PaddingValues(1.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.notifications),
+                                    contentDescription = "events",
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
                         }
                     }
                 }
-            }
+            },
         ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-                    .background(Color(0xFFE0FFE0))
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Create Announcement:",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.align(Alignment.Start)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                TextField(
-                    value = "",
-                    onValueChange = { /* Handle text change */ },
-                    placeholder = { Text("Insert Announcement Here") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp),
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = Color.White,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent
-                    )
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Button(
-                        onClick = {  },
-                        modifier = Modifier.width(120.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFF9FFC9),
-                            contentColor = Color.Black
-                        ),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text("Publish")
-                    }
-
-                }
+            Column(modifier = Modifier.padding(innerPadding)) {
+                CreateAnnouncementView()
             }
         }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun CreateAnnouncementPreview() {
-    ALP_Clement_Romeo_EvanTheme {
-        CreateAnnouncementView()
     }
 }
 

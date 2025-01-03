@@ -2,66 +2,92 @@ package com.example.alp_clement_romeo_evan.views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
-import com.example.alp_clement_romeo_evan.views.components.AnnouncementCard
-import com.example.alp_clement_romeo_evan.views.components.EventCard
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AnnouncementView() {
-    Box(
+fun ProfileEditView() {
+    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFFE7C9))
-
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        LazyColumn {
-            item {
-                AnnouncementCard()
-            }
-            item {
-                AnnouncementCard()
-            }
-            item {
-                AnnouncementCard()
-            }
-            item {
-                AnnouncementCard()
-            }
-            item {
-                AnnouncementCard()
-            }
+        Image(
+            painter = painterResource(R.drawable.character_yi), // Replace with your image resource
+            contentDescription = "Profile Picture",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(200.dp)
+                .clip(CircleShape)
+                .clickable { /* this handles profile pic editing */ }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") },
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { /* Handle edit action */ },
+            modifier = Modifier
+                .width(120.dp)
+                .align(Alignment.End),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFA1FDF6),
+                contentColor = Color.Black
+            ),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text("Update")
         }
     }
 }
@@ -69,7 +95,7 @@ fun AnnouncementView() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun AnnouncementPreview() {
+fun ProfileEditPreview() {
     ALP_Clement_Romeo_EvanTheme {
         Scaffold(
             topBar = {
@@ -84,7 +110,7 @@ fun AnnouncementPreview() {
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Announcements",
+                                text = "Home",
                                 fontSize = 30.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
@@ -131,14 +157,14 @@ fun AnnouncementPreview() {
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Button(
-                                onClick = { /* Handle Announcement click */ },
+                                onClick = { /* Handle home click */ },
                                 modifier = Modifier.size(50.dp),
                                 contentPadding = PaddingValues(1.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
                             ) {
                                 Image(
                                     painter = painterResource(R.drawable.home),
-                                    contentDescription = "Announcement",
+                                    contentDescription = "home",
                                     modifier = Modifier.size(40.dp)
                                 )
                             }
@@ -174,7 +200,7 @@ fun AnnouncementPreview() {
             },
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                AnnouncementView()
+                ProfileEditView()
             }
         }
     }
