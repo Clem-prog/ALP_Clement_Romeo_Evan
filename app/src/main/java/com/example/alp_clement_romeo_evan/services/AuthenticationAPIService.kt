@@ -7,7 +7,7 @@ import retrofit2.http.POST
 
 interface AuthenticationAPIService {
     @POST("api/register")
-    fun register(@Body registerMap: HashMap<String, String> ): Call<UserResponse>
+    fun register(@Body registerMap: HashMap<String, Any> ): Call<UserResponse>
 
     @POST("api/login")
     fun login(@Body loginMap: HashMap<String, String>): Call<UserResponse>

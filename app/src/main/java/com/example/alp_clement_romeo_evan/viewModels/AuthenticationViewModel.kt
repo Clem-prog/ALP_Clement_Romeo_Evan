@@ -58,6 +58,9 @@ class AuthenticationViewModel(
     var emailInput by mutableStateOf("")
         private set
 
+    var isAdminInput by mutableStateOf(false)
+        private set
+
     fun changeEmailInput(emailInput: String) {
         this.emailInput = emailInput
     }
@@ -68,6 +71,10 @@ class AuthenticationViewModel(
 
     fun changePasswordInput(passwordInput: String) {
         this.passwordInput = passwordInput
+    }
+
+    fun changeIsAdminInput(isAdminInput: Boolean) {
+        this.isAdminInput = isAdminInput
     }
 
     /*fun changePasswordVisibility() {
@@ -133,7 +140,7 @@ class AuthenticationViewModel(
             dataStatus = AuthenticationStatusUIState.Loading
 
             try {
-                val call = authenticationRepository.register(usernameInput, emailInput, passwordInput)
+                val call = authenticationRepository.register(usernameInput, emailInput, passwordInput, isAdminInput)
 //                dataStatus = UserDataStatusUIState.Success(registerResult)
 
                 call.enqueue(object: Callback<UserResponse>{
@@ -147,7 +154,7 @@ class AuthenticationViewModel(
 
                             resetViewModel()
 
-                            navController.navigate(PagesEnum.Home.name) {
+                            navController.navigate(PagesEnum.Login.name) {
                                 popUpTo(PagesEnum.Register.name) {
                                     inclusive = true
                                 }
