@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,10 +23,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
 
 @Composable
-fun StartView() {
+fun StartView(
+    navController: NavHostController,
+    context: Context
+) {
     Column (
         modifier = Modifier
             .background(Color(0xFFFFE7C9))
@@ -70,7 +76,7 @@ fun StartView() {
                     .background(Color(0xFFFFFFFF))
             ) {
                 Button(
-                    onClick = {},
+                    onClick = { navController.navigate(PagesEnum.Login.name) },
                     modifier = Modifier
                         .fillMaxSize(),
                     contentPadding = PaddingValues(0.dp),
@@ -116,7 +122,7 @@ fun StartView() {
                     .background(Color(0xFFFFFFFF))
             ) {
                 Button(
-                    onClick = {},
+                    onClick = { navController.navigate(PagesEnum.Register.name) },
                     modifier = Modifier
                         .fillMaxSize(),
                     contentPadding = PaddingValues(0.dp),
@@ -140,6 +146,6 @@ fun StartView() {
 @Composable
 fun StartPreview() {
     ALP_Clement_Romeo_EvanTheme {
-        StartView()
+        //StartView()
     }
 }

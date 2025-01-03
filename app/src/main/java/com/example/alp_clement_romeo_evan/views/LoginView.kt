@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,15 +9,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
 
 @Composable
 fun LoginView(
-    onLoginClick: (String, String) -> Unit = { _, _ -> } // lambda function, will be changed later, currently use to test the design and onclick
+    authenticationViewModel: AuthenticationViewModel,
+    navController: NavHostController,
+    context: Context
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -58,8 +66,11 @@ fun LoginView(
                 }
 
                 OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
+                    value = authenticationViewModel.emailInput,
+                    onValueChange = {
+                        authenticationViewModel.changeEmailInput(it)
+                        authenticationViewModel.checkLoginForm()
+                    },
                     label = { Text("Email") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -70,8 +81,11 @@ fun LoginView(
                 )
 
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
+                    value = authenticationViewModel.passwordInput,
+                    onValueChange = {
+                        authenticationViewModel.changePasswordInput(it)
+                        authenticationViewModel.checkLoginForm()
+                    },
                     label = { Text("Password") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -83,7 +97,9 @@ fun LoginView(
                 )
 
                 Button(
-                    onClick = { onLoginClick(email, password) },
+                    onClick = {
+                        authenticationViewModel.loginUser(navController = navController)
+                    },
                     modifier = Modifier.width(120.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFA1FDF6),
@@ -103,7 +119,11 @@ fun LoginView(
 @Composable
 fun LoginPreview() {
     ALP_Clement_Romeo_EvanTheme {
-        LoginView()
+        LoginView(
+            authenticationViewModel = viewModel(),
+            navController = rememberNavController(),
+            context = LocalContext.current
+        )
     }
 }
 

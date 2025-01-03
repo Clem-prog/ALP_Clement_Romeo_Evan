@@ -20,7 +20,7 @@ import retrofit2.Response
 //5. Contains business logic.
 
 interface AuthenticationRepository {
-    fun register(username: String, email: String, password: String): Call<UserResponse>
+    fun register(username: String, email: String, password: String, isAdmin: Boolean): Call<UserResponse>
 
     fun login(email: String, password: String): Call<UserResponse>
 }
@@ -28,12 +28,13 @@ interface AuthenticationRepository {
 class NetworkAuthenticationRepository(
     private val authenticationAPIService: AuthenticationAPIService
 ): AuthenticationRepository {
-    override fun register(username: String, email: String, password: String): Call<UserResponse> {
-        var registerMap = HashMap<String, String>()
+    override fun register(username: String, email: String, password: String, isAdmin: Boolean): Call<UserResponse> {
+        var registerMap = HashMap<String, Any>()
 
         registerMap["username"] = username
         registerMap["email"] = email
         registerMap["password"] = password
+        registerMap["isAdmin"] = isAdmin
 
         return authenticationAPIService.register(registerMap)
     }
