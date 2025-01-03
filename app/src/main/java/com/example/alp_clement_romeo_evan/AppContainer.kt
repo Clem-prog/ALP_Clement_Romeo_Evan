@@ -6,10 +6,13 @@ import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.alp_clement_romeo_evan.repositories.AuthenticationRepository
+import com.example.alp_clement_romeo_evan.repositories.EventRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkAuthenticationRepository
+import com.example.alp_clement_romeo_evan.repositories.NetworkEventRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkUserRepository
 import com.example.alp_clement_romeo_evan.repositories.UserRepository
 import com.example.alp_clement_romeo_evan.services.AuthenticationAPIService
+import com.example.alp_clement_romeo_evan.services.EventAPIService
 import com.example.alp_clement_romeo_evan.services.UserAPIService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -22,10 +25,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 interface AppContainer {
     val authenticationRepository: AuthenticationRepository
     val userRepository: UserRepository
+    val eventRepository: EventRepository
 }
 
 class DefaultAppContainer(
     private val userDataStore: DataStore<Preferences>
+
 ): AppContainer {
     // change it to your own local ip please
     private val baseUrl = "http://192.168.18.252:3000/"
@@ -44,6 +49,12 @@ class DefaultAppContainer(
         retrofit.create(UserAPIService::class.java)
     }
 
+    private val eventRetrofitService: EventAPIService by lazy {
+        val retrofit = initRetrofit()
+
+        retrofit.create(EventAPIService::class.java)
+    }
+
     // REPOSITORY INIT
     // Passing in the required objects is called dependency injection (DI). It is also known as inversion of control.
     override val authenticationRepository: AuthenticationRepository by lazy {
@@ -52,6 +63,10 @@ class DefaultAppContainer(
 
     override val userRepository: UserRepository by lazy {
         NetworkUserRepository(userDataStore, userRetrofitService)
+    }
+
+    override val eventRepository: EventRepository by lazy {
+        NetworkEventRepository(eventRetrofitService)
     }
 
     private fun initRetrofit(): Retrofit {
