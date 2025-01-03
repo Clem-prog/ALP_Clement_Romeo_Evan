@@ -2,71 +2,92 @@ package com.example.alp_clement_romeo_evan.views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateAnnouncementView() {
+fun ProfileEditView() {
+    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFE0FFE0))
+            .background(Color(0xFFFFE7C9))
             .padding(16.dp),
-        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Create Announcement:",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.align(Alignment.Start)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = "",
-            onValueChange = { /* Handle text change */ },
-            placeholder = { Text("Insert Announcement Here") },
+        Image(
+            painter = painterResource(R.drawable.character_yi), // Replace with your image resource
+            contentDescription = "Profile Picture",
+            contentScale = ContentScale.Crop,
             modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.White,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent
-            )
+                .size(200.dp)
+                .clip(CircleShape)
+                .clickable { /* this handles profile pic editing */ }
         )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            contentAlignment = Alignment.CenterEnd
-        ) {
-            Button(
-                onClick = {  },
-                modifier = Modifier.width(120.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFF9FFC9),
-                    contentColor = Color.Black
-                ),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("Publish")
-            }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") },
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { /* Handle edit action */ },
+            modifier = Modifier
+                .width(120.dp)
+                .align(Alignment.End),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFA1FDF6),
+                contentColor = Color.Black
+            ),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text("Update")
         }
     }
 }
@@ -74,7 +95,7 @@ fun CreateAnnouncementView() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun CreateAnnouncementPreview() {
+fun ProfileEditPreview() {
     ALP_Clement_Romeo_EvanTheme {
         Scaffold(
             topBar = {
@@ -89,7 +110,7 @@ fun CreateAnnouncementPreview() {
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Announcement+",
+                                text = "Home",
                                 fontSize = 30.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
@@ -179,9 +200,8 @@ fun CreateAnnouncementPreview() {
             },
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                CreateAnnouncementView()
+                ProfileEditView()
             }
         }
     }
 }
-
