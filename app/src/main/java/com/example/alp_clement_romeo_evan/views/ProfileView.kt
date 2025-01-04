@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.R
+import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
 import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
@@ -66,15 +67,34 @@ fun ProfileView(
             Column (
                 modifier = Modifier.align(Alignment.Start)
             ){
-                Text(
-                    text = "Username",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = dataStatus.userModelData.username,
-                    fontSize = 18.sp,
-                )
+                if (dataStatus.userModelData.isAdmin) {
+                    Text(
+                        text = "Username",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Row {
+                        Text(
+                            text = dataStatus.userModelData.username,
+                            fontSize = 18.sp,
+                        )
+                        Image(
+                            painter = painterResource(R.drawable.admin),
+                            contentDescription = "admin",
+                            modifier = Modifier.padding(start = 5.dp)
+                        )
+                    }
+                } else {
+                    Text(
+                        text = "Username",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = dataStatus.userModelData.username,
+                        fontSize = 18.sp,
+                    )
+                }
                 HorizontalDivider(
                     color = Color.Black,
                     thickness = 1.dp,
@@ -121,7 +141,7 @@ fun ProfileView(
                 Spacer(modifier = Modifier.height(19.dp))
 
                 Button(
-                    onClick = { /* Handle edit action */ },
+                    onClick = { navController.navigate(PagesEnum.ProfileEdit.name) },
                     modifier = Modifier
                         .width(120.dp)
                         .align(Alignment.End),
