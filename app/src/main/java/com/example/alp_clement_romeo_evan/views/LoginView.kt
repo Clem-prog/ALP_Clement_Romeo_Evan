@@ -107,7 +107,7 @@ fun LoginView(
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Sign up")
+                    Text("Log In")
                 }
 
             }

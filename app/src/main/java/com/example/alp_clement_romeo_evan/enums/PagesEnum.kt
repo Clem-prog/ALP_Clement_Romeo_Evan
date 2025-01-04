@@ -5,6 +5,5 @@ enum class PagesEnum() {
     Start,
     Register,
     Home,
-    CreateTodo,
-    TodoDetail
+    Profile
 }
