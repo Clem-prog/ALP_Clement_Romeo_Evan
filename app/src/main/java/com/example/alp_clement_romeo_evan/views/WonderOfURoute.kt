@@ -103,6 +103,22 @@ fun WonderOfU(
                 title = "Profile",
             )
         }
+
+        composable(route = PagesEnum.ProfileEdit.name) {
+            ScaffoldMain(
+                navController = navController,
+                content = {
+                    ProfileEditView(
+                        navController = navController,
+                        token = token.value,
+                        userId = userId.value,
+                        authenticationViewModel = authenticationViewModel,
+                        context = localContext,
+                    )
+                },
+                title = "Edit Profile",
+            )
+        }
     }
 }
 

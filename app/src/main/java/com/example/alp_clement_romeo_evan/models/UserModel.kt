@@ -8,10 +8,19 @@ data class LogInResponse(
     val data: UserData
 )
 
+data class UpdateResponse (
+    val data: UserUpdate
+)
+
 data class UserModel (
     val id: Int,
     val isAdmin: Boolean,
     val token: String?
+)
+
+data class UserUpdate (
+    val username: String,
+    val email: String,
 )
 
 data class UserData(

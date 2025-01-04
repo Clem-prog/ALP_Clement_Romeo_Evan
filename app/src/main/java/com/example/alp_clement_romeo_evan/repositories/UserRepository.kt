@@ -9,6 +9,8 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.alp_clement_romeo_evan.models.GeneralResponseModel
 import com.example.alp_clement_romeo_evan.models.LogInResponse
+import com.example.alp_clement_romeo_evan.models.UpdateResponse
+import com.example.alp_clement_romeo_evan.models.UserResponse
 import com.example.alp_clement_romeo_evan.services.UserAPIService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -20,6 +22,7 @@ interface UserRepository {
     val currentUserId: Flow<Int>
 
     fun logout(token: String): Call<GeneralResponseModel>
+    fun update(token: String, username: String, email: String, userId: Int): Call<UpdateResponse>
     fun getUser(token: String, userId: Int): Call<LogInResponse>
 
     suspend fun saveUserToken(token: String)
@@ -71,6 +74,15 @@ class NetworkUserRepository(
 
     override fun logout(token: String): Call<GeneralResponseModel> {
         return userAPIService.logout(token)
+    }
+
+    override fun update(token: String, username: String, email: String, userId: Int): Call<UpdateResponse> {
+        var updateMap = HashMap<String, String>()
+
+        updateMap["username"] = username
+        updateMap["email"] = email
+
+        return userAPIService.updateUser(token, userId, updateMap)
     }
 
     override fun getUser(token: String, userId: Int): Call<LogInResponse> {
