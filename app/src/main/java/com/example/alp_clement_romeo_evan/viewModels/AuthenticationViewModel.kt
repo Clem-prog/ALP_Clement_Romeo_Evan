@@ -19,6 +19,7 @@ import com.example.alp_clement_romeo_evan.WonderOfU
 import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.models.ErrorModel
 import com.example.alp_clement_romeo_evan.models.LogInResponse
+import com.example.alp_clement_romeo_evan.models.UpdateResponse
 import com.example.alp_clement_romeo_evan.models.UserResponse
 import com.example.alp_clement_romeo_evan.repositories.AuthenticationRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkUserRepository
@@ -114,6 +115,22 @@ class AuthenticationViewModel(
 
     fun checkRegisterForm() {
         if (emailInput.isNotEmpty() && passwordInput.isNotEmpty() && usernameInput.isNotEmpty()) {
+            _authenticationUIState.update { currentState ->
+                currentState.copy(
+                    buttonEnabled = true
+                )
+            }
+        } else {
+            _authenticationUIState.update { currentState ->
+                currentState.copy(
+                    buttonEnabled = false
+                )
+            }
+        }
+    }
+
+    fun checkUpdateForm() {
+        if (emailInput.isNotEmpty() && usernameInput.isNotEmpty()) {
             _authenticationUIState.update { currentState ->
                 currentState.copy(
                     buttonEnabled = true
@@ -248,38 +265,51 @@ class AuthenticationViewModel(
         }
     }
 
-    /*fun getUser(token: String) {
+    fun updateUser(token: String, userId: Int, navController: NavHostController) {
         viewModelScope.launch {
             dataStatus = AuthenticationStatusUIState.Loading
 
             try {
-                val call = userRepository.getUser(token)
+                val call = userRepository.update(token, usernameInput, emailInput, userId)
+//                dataStatus = UserDataStatusUIState.Success(registerResult)
 
-                call.enqueue(object : Callback<LogInResponse> {
-                    override fun onResponse(call: Call<LogInResponse>, res: Response<LogInResponse>) {
+                call.enqueue(object: Callback<UpdateResponse>{
+                    override fun onResponse(call: Call<UpdateResponse>, res: Response<UpdateResponse>) {
                         if (res.isSuccessful) {
-                            dataStatus = AuthenticationStatusUIState.GotUser(res.body()!!.data)
+
+                            dataStatus = AuthenticationStatusUIState.Updated(res.body()!!.data)
+
+                            resetViewModel()
+
+                            navController.navigate(PagesEnum.Profile.name) {
+                                popUpTo(PagesEnum.ProfileEdit.name) {
+                                    inclusive = true
+                                }
+                            }
                         } else {
+                            // get error message
                             val errorMessage = Gson().fromJson(
                                 res.errorBody()!!.charStream(),
                                 ErrorModel::class.java
                             )
-                            Log.d("error-data", "ERROR DATA: ${errorMessage.errors}")
+
+                            Log.d("error-data", "ERROR DATA: ${errorMessage}")
                             dataStatus = AuthenticationStatusUIState.Failed(errorMessage.errors)
                         }
                     }
 
-                    override fun onFailure(call: Call<LogInResponse>, t: Throwable) {
+                    override fun onFailure(call: Call<UpdateResponse>, t: Throwable) {
+                        Log.d("error-data", "ERROR DATA: ${t.localizedMessage}")
                         dataStatus = AuthenticationStatusUIState.Failed(t.localizedMessage)
-                        Log.d("get-user-error", "ERROR DATA: ${t.localizedMessage}")
                     }
+
                 })
             } catch (error: IOException) {
                 dataStatus = AuthenticationStatusUIState.Failed(error.localizedMessage)
-                Log.d("get-user-error", "GET USER ERROR: ${error.localizedMessage}")
+                Log.d("register-error", "REGISTER ERROR: ${error.localizedMessage}")
             }
         }
-    }*/
+    }
 
     fun getUserInfo(token: String, userId: Int) {
         viewModelScope.launch {

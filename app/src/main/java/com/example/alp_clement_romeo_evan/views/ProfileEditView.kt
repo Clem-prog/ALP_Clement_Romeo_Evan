@@ -1,5 +1,7 @@
 package com.example.alp_clement_romeo_evan.views
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,81 +15,101 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
+import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileEditView() {
-    var username by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun ProfileEditView(
+    navController: NavHostController,
+    token: String,
+    userId: Int,
+    authenticationViewModel: AuthenticationViewModel,
+    context: Context,
+) {
+    LaunchedEffect(token) {
+        authenticationViewModel.getUserInfo(token, userId)
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFFFE7C9))
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(R.drawable.character_yi), // Replace with your image resource
-            contentDescription = "Profile Picture",
-            contentScale = ContentScale.Crop,
+    val dataStatus = authenticationViewModel.dataStatus
+    if (dataStatus is AuthenticationStatusUIState.GotUser) {
+        LaunchedEffect(dataStatus) {
+            authenticationViewModel.changeUsernameInput(dataStatus.userModelData.username)
+            authenticationViewModel.changeEmailInput(dataStatus.userModelData.email)
+        }
+
+        Column(
             modifier = Modifier
-                .size(200.dp)
-                .clip(CircleShape)
-                .clickable { /* this handles profile pic editing */ }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { /* Handle edit action */ },
-            modifier = Modifier
-                .width(120.dp)
-                .align(Alignment.End),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFA1FDF6),
-                contentColor = Color.Black
-            ),
-            shape = RoundedCornerShape(8.dp)
+                .fillMaxSize()
+                .background(Color(0xFFFFE7C9))
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Update")
+            Image(
+                painter = painterResource(R.drawable.character_yi), // Replace with your image resource
+                contentDescription = "Profile Picture",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(200.dp)
+                    .clip(CircleShape)
+                    .clickable { /* this handles profile pic editing */ }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = authenticationViewModel.usernameInput,
+                onValueChange = {
+                    authenticationViewModel.changeUsernameInput(it)
+                    authenticationViewModel.checkUpdateForm()
+                },
+                label = { Text("Username") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = authenticationViewModel.emailInput,
+                onValueChange = {
+                    authenticationViewModel.changeEmailInput(it)
+                    authenticationViewModel.checkUpdateForm()
+                },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    Log.d("ProfileEdit", "Username: ${authenticationViewModel.usernameInput}")
+                    Log.d("ProfileEdit", "Email: ${authenticationViewModel.emailInput}")
+
+                    authenticationViewModel.updateUser(token, userId, navController) },
+                modifier = Modifier
+                    .width(120.dp)
+                    .align(Alignment.End),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFA1FDF6),
+                    contentColor = Color.Black
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("Update")
+            }
         }
     }
 }
@@ -137,7 +159,12 @@ fun ProfileEditPreview() {
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)) // Optional rounded corners
+                        .clip(
+                            RoundedCornerShape(
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            )
+                        ) // Optional rounded corners
                 )
             },
             bottomBar = {
@@ -200,7 +227,13 @@ fun ProfileEditPreview() {
             },
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                ProfileEditView()
+                ProfileEditView(
+                    authenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory),
+                    navController = rememberNavController(),
+                    token = "",
+                    userId = 0,
+                    context = LocalContext.current
+                )
             }
         }
     }

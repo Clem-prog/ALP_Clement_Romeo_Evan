@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -102,6 +103,22 @@ fun WonderOfU(
                 title = "Profile",
             )
         }
+
+        composable(route = PagesEnum.ProfileEdit.name) {
+            ScaffoldMain(
+                navController = navController,
+                content = {
+                    ProfileEditView(
+                        navController = navController,
+                        token = token.value,
+                        userId = userId.value,
+                        authenticationViewModel = authenticationViewModel,
+                        context = localContext,
+                    )
+                },
+                title = "Edit Profile",
+            )
+        }
     }
 }
 
@@ -110,8 +127,10 @@ fun WonderOfU(
 fun ScaffoldMain(
     navController: NavHostController,
     content: @Composable () -> Unit,
+    homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
     title: String,
 ) {
+    val isAdmin = homeViewModel.isAdmin.collectAsState().value
 
     Scaffold(
         topBar = {
@@ -209,6 +228,22 @@ fun ScaffoldMain(
                                 contentDescription = "events",
                                 modifier = Modifier.size(40.dp)
                             )
+                        }
+
+                        if (isAdmin) {
+                            Spacer(Modifier.weight(1f))
+                            Button(
+                                onClick = { /* Handle add click */ },
+                                modifier = Modifier.size(50.dp),
+                                contentPadding = PaddingValues(1.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.add),
+                                    contentDescription = "add",
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
                         }
                     }
                 }
