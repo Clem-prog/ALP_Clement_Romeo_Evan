@@ -6,12 +6,15 @@ import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.alp_clement_romeo_evan.repositories.AuthenticationRepository
+import com.example.alp_clement_romeo_evan.repositories.CategoryRepository
 import com.example.alp_clement_romeo_evan.repositories.EventRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkAuthenticationRepository
+import com.example.alp_clement_romeo_evan.repositories.NetworkCategoryRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkEventRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkUserRepository
 import com.example.alp_clement_romeo_evan.repositories.UserRepository
 import com.example.alp_clement_romeo_evan.services.AuthenticationAPIService
+import com.example.alp_clement_romeo_evan.services.CategoryAPIService
 import com.example.alp_clement_romeo_evan.services.EventAPIService
 import com.example.alp_clement_romeo_evan.services.UserAPIService
 import okhttp3.OkHttpClient
@@ -26,6 +29,7 @@ interface AppContainer {
     val authenticationRepository: AuthenticationRepository
     val userRepository: UserRepository
     val eventRepository: EventRepository
+    val categoryRepository: CategoryRepository
 }
 
 class DefaultAppContainer(
@@ -55,6 +59,12 @@ class DefaultAppContainer(
         retrofit.create(EventAPIService::class.java)
     }
 
+    private val categoryRetrofitService: CategoryAPIService by lazy {
+        val retrofit = initRetrofit()
+
+        retrofit.create(CategoryAPIService::class.java)
+    }
+
     // REPOSITORY INIT
     // Passing in the required objects is called dependency injection (DI). It is also known as inversion of control.
     override val authenticationRepository: AuthenticationRepository by lazy {
@@ -67,6 +77,10 @@ class DefaultAppContainer(
 
     override val eventRepository: EventRepository by lazy {
         NetworkEventRepository(eventRetrofitService)
+    }
+
+    override val categoryRepository: CategoryRepository by lazy {
+        NetworkCategoryRepository(categoryRetrofitService)
     }
 
     private fun initRetrofit(): Retrofit {
