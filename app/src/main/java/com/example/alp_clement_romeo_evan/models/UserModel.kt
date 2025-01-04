@@ -10,7 +10,7 @@ data class LogInResponse(
 
 data class UserModel (
     val id: Int,
-    val username: String,
+    val isAdmin: Boolean,
     val token: String?
 )
 

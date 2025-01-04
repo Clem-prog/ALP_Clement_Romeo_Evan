@@ -1,14 +1,12 @@
 package com.example.alp_clement_romeo_evan.views
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -45,7 +43,6 @@ import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
 import com.example.alp_clement_romeo_evan.viewModels.HomeViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WonderOfU(
     navController: NavHostController = rememberNavController(),
@@ -82,217 +79,18 @@ fun WonderOfU(
         }
 
         composable(route = PagesEnum.Home.name) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color(0xFFD1EBFF),
-                            titleContentColor = Color.Black,
-                        ),
-                        title = {
-                            Box(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "Home",
-                                    fontSize = 30.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .padding(start = 35.dp)
-                                )
-                            }
-                        },
-                        actions = {
-                            Button(
-                                onClick = { navController.navigate(PagesEnum.Profile.name) },
-                                modifier = Modifier
-                                    .padding(end = 15.dp)
-                                    .size(40.dp),
-                                contentPadding = PaddingValues(1.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
-                            ) {
-                                Image(
-                                    painter = painterResource(R.drawable.profile),
-                                    contentDescription = "profile",
-                                    modifier = Modifier.size(40.dp)
-                                )
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)) // Optional rounded corners
-                    )
-                },
-                bottomBar = {
-                    BottomAppBar(
-                        containerColor = Color(0xFFD1EBFF),
-                        contentColor = Color.Black,
-                        modifier = Modifier
-                            .height(90.dp)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 25.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Button(
-                                    onClick = { navController.navigate(PagesEnum.Home.name) },
-                                    modifier = Modifier.size(50.dp),
-                                    contentPadding = PaddingValues(1.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
-                                ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.home),
-                                        contentDescription = "home",
-                                        modifier = Modifier.size(40.dp)
-                                    )
-                                }
-                                Spacer(Modifier.weight(1f))
-                                Button(
-                                    onClick = { /* Handle add click */ },
-                                    modifier = Modifier.size(50.dp),
-                                    contentPadding = PaddingValues(1.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
-                                ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.event),
-                                        contentDescription = "add",
-                                        modifier = Modifier.size(40.dp)
-                                    )
-                                }
-                                Spacer(Modifier.weight(1f))
-                                Button(
-                                    onClick = { /* Handle event click */ },
-                                    modifier = Modifier.size(50.dp),
-                                    contentPadding = PaddingValues(1.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
-                                ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.notifications),
-                                        contentDescription = "events",
-                                        modifier = Modifier.size(40.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                },
-            ) { innerPadding ->
-                Column(modifier = Modifier.padding(innerPadding)) {
+            ScaffoldMain(
+                navController = navController,
+                content = {
                     HomeView()
-                }
-            }
+                },
+                title = "Home",
+            )
         }
         composable(route = PagesEnum.Profile.name) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color(0xFFD1EBFF),
-                            titleContentColor = Color.Black,
-                        ),
-                        title = {
-                            Box(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "Home",
-                                    fontSize = 30.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .padding(start = 35.dp)
-                                )
-                            }
-                        },
-                        actions = {
-                            Button(
-                                onClick = { navController.navigate(PagesEnum.Profile.name) },
-                                modifier = Modifier
-                                    .padding(end = 15.dp)
-                                    .size(40.dp),
-                                contentPadding = PaddingValues(1.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
-                            ) {
-                                Image(
-                                    painter = painterResource(R.drawable.profile),
-                                    contentDescription = "profile",
-                                    modifier = Modifier.size(40.dp)
-                                )
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)) // Optional rounded corners
-                    )
-                },
-                bottomBar = {
-                    BottomAppBar(
-                        containerColor = Color(0xFFD1EBFF),
-                        contentColor = Color.Black,
-                        modifier = Modifier
-                            .height(90.dp)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 25.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Button(
-                                    onClick = { navController.navigate(PagesEnum.Home.name) },
-                                    modifier = Modifier.size(50.dp),
-                                    contentPadding = PaddingValues(1.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
-                                ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.home),
-                                        contentDescription = "home",
-                                        modifier = Modifier.size(40.dp)
-                                    )
-                                }
-                                Spacer(Modifier.weight(1f))
-                                Button(
-                                    onClick = { /* Handle add click */ },
-                                    modifier = Modifier.size(50.dp),
-                                    contentPadding = PaddingValues(1.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
-                                ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.event),
-                                        contentDescription = "add",
-                                        modifier = Modifier.size(40.dp)
-                                    )
-                                }
-                                Spacer(Modifier.weight(1f))
-                                Button(
-                                    onClick = { /* Handle event click */ },
-                                    modifier = Modifier.size(50.dp),
-                                    contentPadding = PaddingValues(1.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
-                                ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.notifications),
-                                        contentDescription = "events",
-                                        modifier = Modifier.size(40.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                },
-            ) { innerPadding ->
-                Column(modifier = Modifier.padding(innerPadding)) {
+            ScaffoldMain(
+                navController = navController,
+                content = {
                     ProfileView(
                         navController = navController,
                         token = token.value,
@@ -300,8 +98,125 @@ fun WonderOfU(
                         authenticationViewModel = authenticationViewModel,
                         context = localContext,
                     )
+                },
+                title = "Profile",
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScaffoldMain(
+    navController: NavHostController,
+    content: @Composable () -> Unit,
+    title: String,
+) {
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFD1EBFF),
+                    titleContentColor = Color.Black,
+                ),
+                title = {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text =  title,
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(start = 35.dp)
+                        )
+                    }
+                },
+                actions = {
+                    Button(
+                        onClick = { navController.navigate(PagesEnum.Profile.name) },
+                        modifier = Modifier
+                            .padding(end = 15.dp)
+                            .size(40.dp),
+                        contentPadding = PaddingValues(1.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.profile),
+                            contentDescription = "profile",
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)) // Optional rounded corners
+            )
+        },
+        bottomBar = {
+            BottomAppBar(
+                containerColor = Color(0xFFD1EBFF),
+                contentColor = Color.Black,
+                modifier = Modifier
+                    .height(90.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 25.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Button(
+                            onClick = { navController.navigate(PagesEnum.Home.name) },
+                            modifier = Modifier.size(50.dp),
+                            contentPadding = PaddingValues(1.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.home),
+                                contentDescription = "home",
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
+                        Spacer(Modifier.weight(1f))
+                        Button(
+                            onClick = { /* Handle add click */ },
+                            modifier = Modifier.size(50.dp),
+                            contentPadding = PaddingValues(1.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.event),
+                                contentDescription = "add",
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
+                        Spacer(Modifier.weight(1f))
+                        Button(
+                            onClick = { /* Handle event click */ },
+                            modifier = Modifier.size(50.dp),
+                            contentPadding = PaddingValues(1.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.notifications),
+                                contentDescription = "events",
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
+                    }
                 }
             }
+        },
+    ) { innerPadding ->
+        Column(modifier = Modifier.padding(innerPadding)) {
+            content()
         }
     }
 }

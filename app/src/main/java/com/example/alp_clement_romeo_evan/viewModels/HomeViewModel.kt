@@ -41,10 +41,10 @@ class HomeViewModel(
         private set
 
 
-    val username: StateFlow<String> = userRepository.currentUsername.stateIn(
+    val isAdmin: StateFlow<Boolean> = userRepository.currentIsAdmin.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = ""
+        initialValue = false
     )
 
     val token: StateFlow<String> = userRepository.currentUserToken.stateIn(
@@ -81,7 +81,7 @@ class HomeViewModel(
                         if (res.isSuccessful) {
                             logoutStatus = StringDataStatusUIState.Success(data = res.body()!!.data)
 
-                            saveUsernameToken("Unknown", "Unknown", 0)
+                            saveUsernameToken("Unknown", false, 0)
 
                             navController.navigate(PagesEnum.Login.name) {
                                 popUpTo(PagesEnum.Home.name) {
@@ -121,10 +121,10 @@ class HomeViewModel(
         }
     }
 
-    fun saveUsernameToken(token: String, username: String, userId: Int) {
+    fun saveUsernameToken(token: String, isAdmin: Boolean, userId: Int) {
         viewModelScope.launch {
             userRepository.saveUserToken(token)
-            userRepository.saveUsername(username)
+            userRepository.saveIsAdmin(isAdmin)
             userRepository.saveUserId(userId)
         }
     }
