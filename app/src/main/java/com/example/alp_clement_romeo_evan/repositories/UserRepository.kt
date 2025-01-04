@@ -3,6 +3,7 @@ package com.example.alp_clement_romeo_evan.repositories
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -15,7 +16,7 @@ import retrofit2.Call
 
 interface UserRepository {
     val currentUserToken: Flow<String>
-    val currentUsername: Flow<String>
+    val currentIsAdmin: Flow<Boolean>
     val currentUserId: Flow<Int>
 
     fun logout(token: String): Call<GeneralResponseModel>
@@ -23,7 +24,7 @@ interface UserRepository {
 
     suspend fun saveUserToken(token: String)
 
-    suspend fun saveUsername(username: String)
+    suspend fun saveIsAdmin(isAdmin: Boolean)
 
     suspend fun saveUserId(userId: Int)
 }
@@ -34,7 +35,7 @@ class NetworkUserRepository(
 ): UserRepository {
     private companion object {
         val USER_TOKEN = stringPreferencesKey("token")
-        val USERNAME = stringPreferencesKey("username")
+        val IS_ADMIN = booleanPreferencesKey("isAdmin")
         val USER_ID = intPreferencesKey("userId")
     }
 
@@ -42,8 +43,8 @@ class NetworkUserRepository(
         preferences[USER_TOKEN] ?: "Unknown"
     }
 
-    override val currentUsername: Flow<String> = userDataStore.data.map { preferences ->
-        preferences[USERNAME] ?: "Unknown"
+    override val currentIsAdmin: Flow<Boolean> = userDataStore.data.map { preferences ->
+        preferences[IS_ADMIN] ?: false
     }
 
     override val currentUserId: Flow<Int> = userDataStore.data.map { preferences ->
@@ -56,9 +57,9 @@ class NetworkUserRepository(
         }
     }
 
-    override suspend fun saveUsername(username: String) {
+    override suspend fun saveIsAdmin(isAdmin: Boolean) {
         userDataStore.edit { preferences ->
-            preferences[USERNAME] = username
+            preferences[IS_ADMIN] = isAdmin
         }
     }
 
