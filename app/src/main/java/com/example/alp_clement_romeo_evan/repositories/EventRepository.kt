@@ -8,13 +8,9 @@ import retrofit2.Call
 
 interface EventRepository {
     fun getAllEvents(token: String): Call<GetAllEventResponse>
-
     fun createEvent(token: String, title: String, description: String, location: String, date: String, poster: String, categoryId: Int): Call<GeneralResponseModel>
-
     fun getEventById(token: String, eventId: Int): Call<GetEventResponse>
-
     fun updateEvent(token: String, eventId: Int, title: String, description: String, location: String, date: String, poster: String, categoryId: Int): Call<GeneralResponseModel>
-
     fun deleteEvent(token: String, eventId: Int): Call<GeneralResponseModel>
 }
 
@@ -22,7 +18,7 @@ class NetworkEventRepository(
     private val eventAPIService: EventAPIService
 ): EventRepository {
     override fun getAllEvents(token: String): Call<GetAllEventResponse> {
-        return eventAPIService.getALlEvent(token)
+        return eventAPIService.getAllEvent(token)
     }
 
     override fun createEvent(

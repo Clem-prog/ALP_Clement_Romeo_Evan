@@ -18,6 +18,7 @@ import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.WonderOfU
 import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.models.ErrorModel
+import com.example.alp_clement_romeo_evan.models.LogInResponse
 import com.example.alp_clement_romeo_evan.models.UserResponse
 import com.example.alp_clement_romeo_evan.repositories.AuthenticationRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkUserRepository
@@ -58,6 +59,9 @@ class AuthenticationViewModel(
     var emailInput by mutableStateOf("")
         private set
 
+    var isAdminInput by mutableStateOf(false)
+        private set
+
     fun changeEmailInput(emailInput: String) {
         this.emailInput = emailInput
     }
@@ -68,6 +72,10 @@ class AuthenticationViewModel(
 
     fun changePasswordInput(passwordInput: String) {
         this.passwordInput = passwordInput
+    }
+
+    fun changeIsAdminInput(isAdminInput: Boolean) {
+        this.isAdminInput = isAdminInput
     }
 
     /*fun changePasswordVisibility() {
@@ -133,7 +141,7 @@ class AuthenticationViewModel(
             dataStatus = AuthenticationStatusUIState.Loading
 
             try {
-                val call = authenticationRepository.register(usernameInput, emailInput, passwordInput)
+                val call = authenticationRepository.register(usernameInput, emailInput, passwordInput, isAdminInput)
 //                dataStatus = UserDataStatusUIState.Success(registerResult)
 
                 call.enqueue(object: Callback<UserResponse>{
@@ -141,13 +149,13 @@ class AuthenticationViewModel(
                         if (res.isSuccessful) {
                             Log.d("response-data", "RESPONSE DATA: ${res.body()}")
 
-                            saveUsernameToken(res.body()!!.data.token!!, res.body()!!.data.username)
+                            saveUsernameToken(res.body()!!.data.token!!, res.body()!!.data.isAdmin, res.body()!!.data.id)
 
                             dataStatus = AuthenticationStatusUIState.Success(res.body()!!.data)
 
                             resetViewModel()
 
-                            navController.navigate(PagesEnum.Home.name) {
+                            navController.navigate(PagesEnum.Login.name) {
                                 popUpTo(PagesEnum.Register.name) {
                                     inclusive = true
                                 }
@@ -187,7 +195,7 @@ class AuthenticationViewModel(
                 call.enqueue(object: Callback<UserResponse> {
                     override fun onResponse(call: Call<UserResponse>, res: Response<UserResponse>) {
                         if (res.isSuccessful) {
-                            saveUsernameToken(res.body()!!.data.token!!, res.body()!!.data.username)
+                            saveUsernameToken(res.body()!!.data.token!!, res.body()!!.data.isAdmin, res.body()!!.data.id)
 
                             dataStatus = AuthenticationStatusUIState.Success(res.body()!!.data)
 
@@ -221,10 +229,11 @@ class AuthenticationViewModel(
         }
     }
 
-    fun saveUsernameToken(token: String, username: String) {
+    fun saveUsernameToken(token: String, isAdmin: Boolean, userId: Int) {
         viewModelScope.launch {
             userRepository.saveUserToken(token)
-            userRepository.saveUsername(username)
+            userRepository.saveIsAdmin(isAdmin)
+            userRepository.saveUserId(userId)
         }
     }
 
@@ -238,6 +247,73 @@ class AuthenticationViewModel(
             }
         }
     }
+
+    /*fun getUser(token: String) {
+        viewModelScope.launch {
+            dataStatus = AuthenticationStatusUIState.Loading
+
+            try {
+                val call = userRepository.getUser(token)
+
+                call.enqueue(object : Callback<LogInResponse> {
+                    override fun onResponse(call: Call<LogInResponse>, res: Response<LogInResponse>) {
+                        if (res.isSuccessful) {
+                            dataStatus = AuthenticationStatusUIState.GotUser(res.body()!!.data)
+                        } else {
+                            val errorMessage = Gson().fromJson(
+                                res.errorBody()!!.charStream(),
+                                ErrorModel::class.java
+                            )
+                            Log.d("error-data", "ERROR DATA: ${errorMessage.errors}")
+                            dataStatus = AuthenticationStatusUIState.Failed(errorMessage.errors)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<LogInResponse>, t: Throwable) {
+                        dataStatus = AuthenticationStatusUIState.Failed(t.localizedMessage)
+                        Log.d("get-user-error", "ERROR DATA: ${t.localizedMessage}")
+                    }
+                })
+            } catch (error: IOException) {
+                dataStatus = AuthenticationStatusUIState.Failed(error.localizedMessage)
+                Log.d("get-user-error", "GET USER ERROR: ${error.localizedMessage}")
+            }
+        }
+    }*/
+
+    fun getUserInfo(token: String, userId: Int) {
+        viewModelScope.launch {
+            dataStatus = AuthenticationStatusUIState.Loading
+
+            try {
+                val call = userRepository.getUser(token, userId)
+
+                call.enqueue(object : Callback<LogInResponse> {
+                    override fun onResponse(call: Call<LogInResponse>, res: Response<LogInResponse>) {
+                        if (res.isSuccessful) {
+                            dataStatus = AuthenticationStatusUIState.GotUser(res.body()!!.data)
+                        } else {
+                            val errorMessage = Gson().fromJson(
+                                res.errorBody()!!.charStream(),
+                                ErrorModel::class.java
+                            )
+                            Log.d("error-data", "ERROR DATA: ${errorMessage.errors}")
+                            dataStatus = AuthenticationStatusUIState.Failed(errorMessage.errors)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<LogInResponse>, t: Throwable) {
+                        dataStatus = AuthenticationStatusUIState.Failed(t.localizedMessage)
+                        Log.d("get-user-error", "ERROR DATA: ${t.localizedMessage}")
+                    }
+                })
+            } catch (error: IOException) {
+                dataStatus = AuthenticationStatusUIState.Failed(error.localizedMessage)
+                Log.d("get-user-error", "GET USER ERROR: ${error.localizedMessage}")
+            }
+        }
+    }
+
 
     fun resetViewModel() {
         changeEmailInput("")

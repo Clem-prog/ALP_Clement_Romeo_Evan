@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,112 +14,138 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
+import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileView() {
-    var username by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun ProfileView(
+    navController: NavHostController,
+    token: String,
+    userId: Int,
+    authenticationViewModel: AuthenticationViewModel,
+    context: Context,
+) {
+    LaunchedEffect(token) {
+        authenticationViewModel.getUserInfo(token, userId)
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFFFE7C9))
-            .padding(20.dp)
-            .padding(top = 5.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(R.drawable.character_yi), // Replace with your image resource
-            contentDescription = "Profile Picture",
-            contentScale = ContentScale.Crop,
+    val dataStatus = authenticationViewModel.dataStatus
+    when(dataStatus) {
+        is AuthenticationStatusUIState.GotUser -> Column(
             modifier = Modifier
-                .size(200.dp)
-                .clip(CircleShape)
-                .clickable { /* this handles profile pic editing */ }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Column (
-            modifier = Modifier.align(Alignment.Start)
-        ){
-            Text(
-                text = "Username",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Anzu Hanashiro",
-                fontSize = 18.sp,
-            )
-            HorizontalDivider(
-                color = Color.Black,
-                thickness = 1.dp,
+                .fillMaxSize()
+                .background(Color(0xFFFFE7C9))
+                .padding(20.dp)
+                .padding(top = 5.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(R.drawable.character_yi), // Replace with your image resource
+                contentDescription = "Profile Picture",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .padding(vertical = 5.dp, horizontal = 1.dp)
+                    .size(200.dp)
+                    .clip(CircleShape)
+                    .clickable { /* this handles profile pic editing */ }
             )
 
-            Spacer(modifier = Modifier.height(19.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = "Email",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Anzu@gmail.com",
-                fontSize = 18.sp,
-            )
-            HorizontalDivider(
-                color = Color.Black,
-                thickness = 1.dp,
-                modifier = Modifier
-                    .padding(vertical = 5.dp, horizontal = 1.dp)
-            )
+            Column (
+                modifier = Modifier.align(Alignment.Start)
+            ){
+                Text(
+                    text = "Username",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = dataStatus.userModelData.username,
+                    fontSize = 18.sp,
+                )
+                HorizontalDivider(
+                    color = Color.Black,
+                    thickness = 1.dp,
+                    modifier = Modifier
+                        .padding(vertical = 5.dp, horizontal = 1.dp)
+                )
 
-            Spacer(modifier = Modifier.height(19.dp))
+                Spacer(modifier = Modifier.height(19.dp))
 
-            Text(
-                text = "Password",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Cool encrypted password",
-                fontSize = 18.sp,
-            )
-            HorizontalDivider(
-                color = Color.Black,
-                thickness = 1.dp,
-                modifier = Modifier
-                    .padding(vertical = 5.dp, horizontal = 1.dp)
-            )
+                Text(
+                    text = "Email",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = dataStatus.userModelData.email,
+                    fontSize = 18.sp,
+                )
+                HorizontalDivider(
+                    color = Color.Black,
+                    thickness = 1.dp,
+                    modifier = Modifier
+                        .padding(vertical = 5.dp, horizontal = 1.dp)
+                )
 
-            Spacer(modifier = Modifier.height(19.dp))
+                Spacer(modifier = Modifier.height(19.dp))
 
-            Button(
-                onClick = { /* Handle edit action */ },
-                modifier = Modifier
-                    .width(120.dp)
-                    .align(Alignment.End),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFA1FDF6),
-                    contentColor = Color.Black
-                ),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("Edit")
+                Text(
+                    text = "Password",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = dataStatus.userModelData.password,
+                    fontSize = 18.sp,
+                )
+                HorizontalDivider(
+                    color = Color.Black,
+                    thickness = 1.dp,
+                    modifier = Modifier
+                        .padding(vertical = 5.dp, horizontal = 1.dp)
+                )
+
+                Spacer(modifier = Modifier.height(19.dp))
+
+                Button(
+                    onClick = { /* Handle edit action */ },
+                    modifier = Modifier
+                        .width(120.dp)
+                        .align(Alignment.End),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFA1FDF6),
+                        contentColor = Color.Black
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Edit")
+                }
             }
+        }
+        else -> Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "No Data Found!",
+                fontSize = 21.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
@@ -188,7 +215,7 @@ fun ProfileViewPreview() {
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Button(
-                                onClick = { /* Handle home click */ },
+                                onClick = {  },
                                 modifier = Modifier.size(50.dp),
                                 contentPadding = PaddingValues(1.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
@@ -231,7 +258,13 @@ fun ProfileViewPreview() {
             },
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                ProfileView()
+                ProfileView(
+                    authenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory),
+                    navController = rememberNavController(),
+                    token = "",
+                    userId = 0,
+                    context = LocalContext.current
+                )
             }
         }
     }
