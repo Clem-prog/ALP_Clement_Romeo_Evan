@@ -15,7 +15,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface EventAPIService {
-    @GET("api/event")
+    @GET("api/event/all")
     fun getAllEvent (@Header("X-API-TOKEN") token: String): Call<GetAllEventResponse>
 
     @GET("api/event/{id}")
