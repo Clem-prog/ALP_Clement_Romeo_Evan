@@ -23,10 +23,3 @@ data class ReviewRequest(
     val rating: Int,
     val comment: String,
 )
-
-data class ReviewRequest(
-    val user_id: Int,
-    val event_id: Int,
-    val rating: Int,
-    val comment: String
-)
