@@ -41,6 +41,7 @@ import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.WonderOfU
 import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
+import com.example.alp_clement_romeo_evan.viewModels.EventFormViewModel
 import com.example.alp_clement_romeo_evan.viewModels.HomeViewModel
 
 
@@ -49,6 +50,7 @@ fun WonderOfU(
     navController: NavHostController = rememberNavController(),
     authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory),
     homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
+    eventFormViewModel: EventFormViewModel = viewModel(factory = EventFormViewModel.Factory )
 ) {
     val localContext = LocalContext.current
     val token = homeViewModel.token.collectAsState()
@@ -117,6 +119,18 @@ fun WonderOfU(
                     )
                 },
                 title = "Edit Profile",
+            )
+        }
+        composable(route = PagesEnum.CreateEvent.name) {
+            ScaffoldMain(
+                navController = navController,
+                content = {
+                    TestView(
+                        navController = navController,
+                        viewModel = eventFormViewModel
+                    )
+                },
+                title = "Create Event",
             )
         }
     }
@@ -233,7 +247,7 @@ fun ScaffoldMain(
                         if (isAdmin) {
                             Spacer(Modifier.weight(1f))
                             Button(
-                                onClick = { /* Handle add click */ },
+                                onClick = { navController.navigate(PagesEnum.CreateEvent.name) },
                                 modifier = Modifier.size(50.dp),
                                 contentPadding = PaddingValues(1.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)

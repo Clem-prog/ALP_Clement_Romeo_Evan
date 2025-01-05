@@ -6,5 +6,7 @@ enum class PagesEnum() {
     Register,
     Home,
     Profile,
-    ProfileEdit
+    ProfileEdit,
+    CreateEvent
+
 }
