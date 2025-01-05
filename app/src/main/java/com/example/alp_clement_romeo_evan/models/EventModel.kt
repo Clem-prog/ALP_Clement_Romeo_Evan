@@ -9,23 +9,23 @@ data class GetEventResponse (
 )
 
 data class EventModel(
-    val id: Int = 0 ,
-    val title: String="",
+    val id: Int,
+    val title: String,
     val isOngoing: Boolean,
-    val description: String =  "",
-    val location: String = "",
-    val date: String = "",
-    val poster: String = "",
-    val category_id: Int = 0
+    val description: String,
+    val location: String,
+    val date: String,
+    val poster: String,
+    val category_id: Int
 )
 
 
 data class EventRequest(
-    val title: String="",
-    val isOngoing: Boolean = false,
-    val description: String =  "",
-    val location: String = "",
-    val date: String = "",
-    val poster: String = "",
-    val category_id: Int = 0
+    val title: String,
+    val isOngoing: Boolean,
+    val description: String,
+    val location: String,
+    val date: String,
+    val poster: String,
+    val category_id: Int
 )

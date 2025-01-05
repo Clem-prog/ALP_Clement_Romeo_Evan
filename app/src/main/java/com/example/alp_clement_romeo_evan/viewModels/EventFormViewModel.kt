@@ -15,10 +15,11 @@ import com.example.alp_clement_romeo_evan.WonderOfU
 import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.models.ErrorModel
 import com.example.alp_clement_romeo_evan.models.GeneralResponseModel
+import com.example.alp_clement_romeo_evan.models.GetEventResponse
 import com.example.alp_clement_romeo_evan.repositories.EventRepository
 import com.example.alp_clement_romeo_evan.repositories.UserRepository
+import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
 import com.example.alp_clement_romeo_evan.uiStates.EventFormUIState
-import com.example.alp_clement_romeo_evan.uiStates.StringDataStatusUIState
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,7 +41,7 @@ class EventFormViewModel(
     var eventId by mutableStateOf(-1)
         private set
 
-    var submissionStatus: StringDataStatusUIState by mutableStateOf(StringDataStatusUIState.Start)
+    var submissionStatus: EventDataStatusUIState by mutableStateOf(EventDataStatusUIState.Start)
         private set
 
     var titleInput by mutableStateOf("")
@@ -105,21 +106,21 @@ class EventFormViewModel(
 
     fun createEvent(navController: NavHostController, token: String) {
         viewModelScope.launch {
-            submissionStatus = StringDataStatusUIState.Loading
+            submissionStatus = EventDataStatusUIState.Loading
 
             Log.d("token-event-list-form", "TOKEN: ${token}")
 
             try {
                 val call = eventRepository.createEvent(token, titleInput, isOngoingInput, descriptionInput, locationInput, dateInput, posterInput, categoryIdInput)
 
-                call.enqueue(object: Callback<GeneralResponseModel> {
+                call.enqueue(object: Callback<GetEventResponse> {
                     override fun onResponse(
-                        call: Call<GeneralResponseModel>,
-                        res: Response<GeneralResponseModel>
+                        call: Call<GetEventResponse>,
+                        res: Response<GetEventResponse>
                     ) {
                         if (res.isSuccessful) {
                             Log.d("json", "JSON RESPONSE: ${res.body()!!.data}")
-                            submissionStatus = StringDataStatusUIState.Success(res.body()!!.data)
+                            submissionStatus = EventDataStatusUIState.Success(res.body()!!.data)
 
                             resetViewModel()
 
@@ -135,27 +136,27 @@ class EventFormViewModel(
                             )
 
                             Log.d("event-create", "Error Response: $errorMessage")
-                            submissionStatus = StringDataStatusUIState.Failed(errorMessage.errors)
+                            submissionStatus = EventDataStatusUIState.Failed(errorMessage.errors)
                         }
                     }
 
-                    override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
-                        submissionStatus = StringDataStatusUIState.Failed(t.localizedMessage)
+                    override fun onFailure(call: Call<GetEventResponse>, t: Throwable) {
+                        submissionStatus = EventDataStatusUIState.Failed(t.localizedMessage)
                     }
 
                 })
             } catch (error: IOException) {
-                submissionStatus = StringDataStatusUIState.Failed(error.localizedMessage)
+                submissionStatus = EventDataStatusUIState.Failed(error.localizedMessage)
             }
         }
     }
 
     fun clearErrorMessage() {
-        submissionStatus = StringDataStatusUIState.Start
+        submissionStatus = EventDataStatusUIState.Start
     }
 
     fun resetViewModel() {
-        submissionStatus = StringDataStatusUIState.Start
+        submissionStatus = EventDataStatusUIState.Start
         titleInput = ""
         isOngoingInput = false
         descriptionInput = ""

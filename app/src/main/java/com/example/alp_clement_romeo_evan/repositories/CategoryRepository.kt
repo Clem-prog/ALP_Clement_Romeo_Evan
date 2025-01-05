@@ -1,12 +1,9 @@
 package com.example.alp_clement_romeo_evan.repositories
 
 import com.example.alp_clement_romeo_evan.models.CategoryRequest
-import com.example.alp_clement_romeo_evan.models.EventRequest
 import com.example.alp_clement_romeo_evan.models.GeneralResponseModel
 import com.example.alp_clement_romeo_evan.models.GetAllCategoryResponse
-import com.example.alp_clement_romeo_evan.models.GetAllEventResponse
 import com.example.alp_clement_romeo_evan.models.GetCategoryResponse
-import com.example.alp_clement_romeo_evan.models.GetEventResponse
 import com.example.alp_clement_romeo_evan.services.CategoryAPIService
 import retrofit2.Call
 
@@ -48,7 +45,7 @@ class NetworkCategoryRepository (
         return categoryAPIService.updateCategory(
             token,
             categoryId,
-            EventRequest(name)
+            CategoryRequest(name)
         )
     }
 
