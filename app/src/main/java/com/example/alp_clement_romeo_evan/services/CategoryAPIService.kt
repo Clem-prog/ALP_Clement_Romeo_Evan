@@ -15,7 +15,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface CategoryAPIService {
-    @GET("/api/category/all")
+    @GET("/api/category")
     fun getAllCategory (@Header("X-API-TOKEN") token: String): Call<GetAllCategoryResponse>
 
     @GET("/api/category/{id}")
