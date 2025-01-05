@@ -8,7 +8,7 @@ import retrofit2.Call
 
 interface EventRepository {
     fun getAllEvents(token: String): Call<GetAllEventResponse>
-    fun createEvent(token: String, title: String, isOngoing: Boolean, description: String, location: String, date: String, poster: String, category_id: Int): Call<GeneralResponseModel>
+    fun createEvent(token: String, title: String, isOngoing: Boolean, description: String, location: String, date: String, poster: String, category_id: Int): Call<GetEventResponse>
     fun getEventById(token: String, eventId: Int): Call<GetEventResponse>
     fun updateEvent(token: String, eventId: Int, title: String, isOngoing: Boolean, description: String, location: String, date: String, poster: String, categoryId: Int): Call<GeneralResponseModel>
     fun deleteEvent(token: String, eventId: Int): Call<GeneralResponseModel>
@@ -30,7 +30,7 @@ class NetworkEventRepository(
         date: String,
         poster: String,
         categoryId: Int
-    ): Call<GeneralResponseModel> {
+    ): Call<GetEventResponse> {
         return eventAPIService.createEvent(
             token,
             EventRequest(title, isOngoing, description, location, date, poster, categoryId)

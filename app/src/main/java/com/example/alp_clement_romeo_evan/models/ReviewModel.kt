@@ -9,16 +9,17 @@ data class GetReviewResponse(
 )
 
 data class ReviewModel(
-    val id: Int = 0,
-    val user_id: Int = 0,
-    val event_id: Int = 0,
-    val rating: Int = 0,
-    val comment: String = ""
+    val id: Int,
+    val user_id: Int,
+    val event_id: Int,
+    val rating: Int,
+    val comment: String
 )
 
 data class ReviewRequest(
-    val user_id: Int = 0,
-    val event_id: Int = 0,
-    val rating: Int = 0,
-    val comment: String = ""
+    val id: Int,
+    val user_id: Int,
+    val event_id: Int,
+    val rating: Int,
+    val comment: String,
 )
