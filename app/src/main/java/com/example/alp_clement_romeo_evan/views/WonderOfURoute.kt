@@ -137,6 +137,7 @@ fun WonderOfU(
                         navController = navController,
                         eventFormViewModel = eventFormViewModel,
                         categoryViewModel = categoryViewModel,
+                        context = localContext,
                         token = token.value
                     )
                 },

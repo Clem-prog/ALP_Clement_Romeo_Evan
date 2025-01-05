@@ -1,6 +1,7 @@
 package com.example.alp_clement_romeo_evan
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
