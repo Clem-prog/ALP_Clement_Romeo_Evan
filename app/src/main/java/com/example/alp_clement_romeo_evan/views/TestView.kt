@@ -6,11 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.alp_clement_romeo_evan.uiStates.CategoryUIState
 import com.example.alp_clement_romeo_evan.uiStates.StringDataStatusUIState
+import com.example.alp_clement_romeo_evan.viewModels.CategoryViewModel
 import com.example.alp_clement_romeo_evan.viewModels.EventFormViewModel
 import java.util.Calendar
 import java.text.SimpleDateFormat
@@ -19,13 +22,19 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TestView(
-    viewModel: EventFormViewModel,
-    navController: NavHostController = rememberNavController()
+    eventFormViewModel: EventFormViewModel,
+    categoryViewModel: CategoryViewModel,
+    navController: NavHostController,
+    token: String
 ) {
-    val submissionStatus = viewModel.submissionStatus
+    val submissionStatus = eventFormViewModel.submissionStatus
     var showDatePicker by remember { mutableStateOf(false) }
     var selectedDate by remember { mutableStateOf(Calendar.getInstance()) }
-    val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+    val dateFormatter = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+    LaunchedEffect(token) {
+        categoryViewModel.getAllCategories(token)
+    }
+    val dataStatus = categoryViewModel.dataStatus
 
     Column(
         modifier = Modifier
@@ -34,8 +43,8 @@ fun TestView(
     ) {
         // Title Field
         TextField(
-            value = viewModel.titleInput,
-            onValueChange = { viewModel.changeTitleInput(it) },
+            value = eventFormViewModel.titleInput,
+            onValueChange = { eventFormViewModel.changeTitleInput(it) },
             label = { Text("Event Title") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -44,8 +53,8 @@ fun TestView(
 
         // Description Field
         TextField(
-            value = viewModel.descriptionInput,
-            onValueChange = { viewModel.changeDescriptionInput(it) },
+            value = eventFormViewModel.descriptionInput,
+            onValueChange = { eventFormViewModel.changeDescriptionInput(it) },
             label = { Text("Description") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -55,8 +64,8 @@ fun TestView(
 
         // Location Field
         TextField(
-            value = viewModel.locationInput,
-            onValueChange = { viewModel.changeLocationInput(it) },
+            value = eventFormViewModel.locationInput,
+            onValueChange = { eventFormViewModel.changeLocationInput(it) },
             label = { Text("Location") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -70,7 +79,7 @@ fun TestView(
                 .padding(vertical = 8.dp)
         ) {
             TextField(
-                value = viewModel.dateInput,
+                value = eventFormViewModel.dateInput,
                 onValueChange = { },
                 label = { Text("Date") },
                 modifier = Modifier.weight(1f),
@@ -89,7 +98,7 @@ fun TestView(
                 onDismissRequest = { showDatePicker = false },
                 confirmButton = {
                     TextButton(onClick = {
-                        viewModel.changeDateInput(dateFormatter.format(selectedDate.time))
+                        eventFormViewModel.changeDateInput(dateFormatter.format(selectedDate.time))
                         showDatePicker = false
                     }) {
                         Text("OK")
@@ -109,8 +118,8 @@ fun TestView(
 
         // Poster URL Field
         TextField(
-            value = viewModel.posterInput,
-            onValueChange = { viewModel.changePosterInput(it) },
+            value = eventFormViewModel.posterInput,
+            onValueChange = { eventFormViewModel.changePosterInput(it) },
             label = { Text("Poster URL") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -119,39 +128,40 @@ fun TestView(
 
         // Category Dropdown
         var expanded by remember { mutableStateOf(false) }
-        val categories = listOf(
-            1 to "Category 1",
-            2 to "Category 2",
-            3 to "Category 3"
-        )
+        if (dataStatus is CategoryUIState.Success) {
+            val categories = dataStatus.data
 
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            TextField(
-                value = categories.find { it.first == viewModel.categoryIdInput }?.second ?: "",
-                onValueChange = { },
-                readOnly = true,
-                label = { Text("Category") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier.menuAnchor()
-            )
-            ExposedDropdownMenu(
+            ExposedDropdownMenuBox(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onExpandedChange = { expanded = !expanded },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
             ) {
-                categories.forEach { (id, name) ->
-                    DropdownMenuItem(
-                        text = { Text(name) },
-                        onClick = {
-                            viewModel.changeCategoryIdInput(id)
-                            expanded = false
-                        }
-                    )
+                // Find the selected category name or show empty string
+                TextField(
+                    value = categories.find { it.id == eventFormViewModel.categoryIdInput }?.name ?: "",
+                    onValueChange = { },
+                    readOnly = true,
+                    label = { Text("Category") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor()
+                )
+
+                // Dropdown menu
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    categories.forEach { category ->
+                        DropdownMenuItem(
+                            text = { Text(category.name) },
+                            onClick = {
+                                eventFormViewModel.changeCategoryIdInput(category.id)
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -159,7 +169,7 @@ fun TestView(
         // Submit Button
         Button(
             onClick = {
-                viewModel.createEvent(navController, "your-test-token-here")
+                eventFormViewModel.createEvent(navController, token)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -168,33 +178,9 @@ fun TestView(
             Text("Create Event")
         }
 
-        // Status Messages
-        when (submissionStatus) {
-            is StringDataStatusUIState.Loading -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-            is StringDataStatusUIState.Failed -> {
-                Text(
-                    text = "error kak", // Changed from message to error
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-            }
-            is StringDataStatusUIState.Success -> {
-                Text(
-                    text = "Event created successfully!",
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-            }
-            else -> { /* Start state, nothing to show */ }
-        }
-
         // Reset Form Button
         TextButton(
-            onClick = { viewModel.resetViewModel() },
+            onClick = { eventFormViewModel.resetViewModel() },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
