@@ -22,7 +22,7 @@ interface EventAPIService {
     fun getEventById (@Header("X-API-TOKEN") token: String, @Path("id") eventId: Int): Call<GetEventResponse>
 
     @POST("api/events")
-    fun createEvent(@Header("X-API-TOKEN") token: String, @Body eventModel: EventRequest): Call<GeneralResponseModel>
+    fun createEvent(@Header("X-API-TOKEN") token: String, @Body eventModel: EventRequest): Call<GetEventResponse>
 
     @PUT("api/events/{id}")
     fun updateEvent(@Header("X-API-TOKEN") token: String, @Path("id") eventId: Int, @Body eventModel: EventRequest): Call<GeneralResponseModel>
