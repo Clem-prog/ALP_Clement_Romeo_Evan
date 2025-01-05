@@ -10,15 +10,15 @@ data class GetReviewResponse(
 
 data class ReviewModel(
     val id: Int = 0,
-    val userId: Int = 0,
-    val eventId: Int = 0,
+    val user_id: Int = 0,
+    val event_id: Int = 0,
     val rating: Int = 0,
     val comment: String = ""
 )
 
 data class ReviewRequest(
-    val userId: Int = 0,
-    val eventId: Int = 0,
+    val user_id: Int = 0,
+    val event_id: Int = 0,
     val rating: Int = 0,
     val comment: String = ""
 )
