@@ -15,19 +15,19 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface EventAPIService {
-    @GET("api/event/all")
+    @GET("api/events/all")
     fun getAllEvent (@Header("X-API-TOKEN") token: String): Call<GetAllEventResponse>
 
-    @GET("api/event/{id}")
+    @GET("api/events/{id}")
     fun getEventById (@Header("X-API-TOKEN") token: String, @Path("id") eventId: Int): Call<GetEventResponse>
 
-    @POST("api/event")
+    @POST("api/events")
     fun createEvent(@Header("X-API-TOKEN") token: String, @Body eventModel: EventRequest): Call<GeneralResponseModel>
 
-    @PUT("api/event/{id}")
+    @PUT("api/events/{id}")
     fun updateEvent(@Header("X-API-TOKEN") token: String, @Path("id") eventId: Int, @Body eventModel: EventRequest): Call<GeneralResponseModel>
 
-    @DELETE("api/event/{id}")
+    @DELETE("api/events/{id}")
     fun deleteEvent(@Header("X-API-TOKEN") token: String, @Path("id") eventId: Int): Call<GeneralResponseModel>
 }
 

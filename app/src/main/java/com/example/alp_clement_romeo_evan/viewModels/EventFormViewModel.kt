@@ -46,6 +46,9 @@ class EventFormViewModel(
     var titleInput by mutableStateOf("")
         private set
 
+    var isOngoingInput by mutableStateOf(false)
+        private set
+
     var descriptionInput by mutableStateOf("")
         private set
 
@@ -63,6 +66,10 @@ class EventFormViewModel(
 
     fun changeTitleInput(title: String) {
         titleInput = title
+    }
+
+    fun changeIsOngoingInput(isOngoing: Boolean) {
+        isOngoingInput = isOngoing
     }
 
     fun changeDescriptionInput(description: String) {
@@ -103,8 +110,7 @@ class EventFormViewModel(
             Log.d("token-event-list-form", "TOKEN: ${token}")
 
             try {
-                val call = eventRepository.createEvent(token, titleInput, descriptionInput, locationInput, dateInput, posterInput, categoryIdInput)
-
+                val call = eventRepository.createEvent(token, titleInput, isOngoingInput, descriptionInput, locationInput, dateInput, posterInput, categoryIdInput)
 
                 call.enqueue(object: Callback<GeneralResponseModel> {
                     override fun onResponse(
@@ -128,6 +134,7 @@ class EventFormViewModel(
                                 ErrorModel::class.java
                             )
 
+                            Log.d("event-create", "Error Response: $errorMessage")
                             submissionStatus = StringDataStatusUIState.Failed(errorMessage.errors)
                         }
                     }
@@ -150,12 +157,12 @@ class EventFormViewModel(
     fun resetViewModel() {
         submissionStatus = StringDataStatusUIState.Start
         titleInput = ""
+        isOngoingInput = false
         descriptionInput = ""
         locationInput = ""
         dateInput = ""
         posterInput = ""
         categoryIdInput = 0
-
     }
 }
 

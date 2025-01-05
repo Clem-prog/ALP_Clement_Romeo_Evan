@@ -41,6 +41,7 @@ import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.WonderOfU
 import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
+import com.example.alp_clement_romeo_evan.viewModels.CategoryViewModel
 import com.example.alp_clement_romeo_evan.viewModels.EventFormViewModel
 import com.example.alp_clement_romeo_evan.viewModels.HomeViewModel
 
@@ -50,10 +51,12 @@ fun WonderOfU(
     navController: NavHostController = rememberNavController(),
     authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory),
     homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
-    eventFormViewModel: EventFormViewModel = viewModel(factory = EventFormViewModel.Factory )
+    eventFormViewModel: EventFormViewModel = viewModel(factory = EventFormViewModel.Factory),
+    categoryViewModel: CategoryViewModel = viewModel(factory = CategoryViewModel.Factory)
 ) {
     val localContext = LocalContext.current
     val token = homeViewModel.token.collectAsState()
+    val isAdmin = homeViewModel.isAdmin.collectAsState()
     val userId = homeViewModel.id.collectAsState()
 
 
@@ -85,7 +88,12 @@ fun WonderOfU(
             ScaffoldMain(
                 navController = navController,
                 content = {
-                    HomeView()
+                    HomeView(
+                        categoryViewModel = categoryViewModel,
+                        token = token.value,
+                        isAdmin = isAdmin.value
+
+                    )
                 },
                 title = "Home",
             )
@@ -127,7 +135,9 @@ fun WonderOfU(
                 content = {
                     TestView(
                         navController = navController,
-                        viewModel = eventFormViewModel
+                        eventFormViewModel = eventFormViewModel,
+                        categoryViewModel = categoryViewModel,
+                        token = token.value
                     )
                 },
                 title = "Create Event",

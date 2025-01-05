@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -24,6 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,27 +37,69 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.alp_clement_romeo_evan.R
+import com.example.alp_clement_romeo_evan.repositories.CategoryRepository
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.CategoryUIState
+import com.example.alp_clement_romeo_evan.viewModels.CategoryViewModel
 import com.example.alp_clement_romeo_evan.views.components.EventCard
+import com.example.alp_clement_romeo_evan.views.components.categoriesButton
 
 @Composable
-fun HomeView() {
+fun HomeView(
+    categoryViewModel: CategoryViewModel,
+    token: String,
+    isAdmin: Boolean
+) {
+    LaunchedEffect(token) {
+        categoryViewModel.getAllCategories(token)
+    }
+
+    val (selectedCategory, setSelectedCategory) = rememberSaveable { mutableStateOf("My Feed") }
+    val dataStatus = categoryViewModel.dataStatus
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFFE7C9))
 
     ) {
-        LazyColumn {
-            item {
-                EventCard()
+        Column {
+            LazyRow(
+                modifier = Modifier.padding(vertical = 10.dp),
+            ) {
+                when (dataStatus) {
+                    is CategoryUIState.Success ->
+                        items(dataStatus.data.size) { index ->
+                            val category = dataStatus.data[index]
+                            categoriesButton(
+                                categoryName = category.name,
+                                isSelected = selectedCategory == category.name,
+                                onCategorySelected = { selectedCategoryName ->
+                                    setSelectedCategory(selectedCategoryName)
+                                }
+                            )
+                        }
+
+                    else -> item {
+                        Text(
+                            text = "No categories here!",
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                }
             }
-            item {
-                EventCard()
-            }
-            item {
-                EventCard()
+            LazyColumn {
+                item {
+                    EventCard()
+                }
+                item {
+                    EventCard()
+                }
+                item {
+                    EventCard()
+                }
             }
         }
     }
@@ -104,7 +150,12 @@ fun HomePreview() {
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)) // Optional rounded corners
+                        .clip(
+                            RoundedCornerShape(
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            )
+                        ) // Optional rounded corners
                 )
             },
             bottomBar = {
@@ -167,7 +218,11 @@ fun HomePreview() {
             },
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                HomeView()
+                HomeView(
+                    categoryViewModel = viewModel(),
+                    token = "",
+                    isAdmin = false
+                )
             }
         }
     }
