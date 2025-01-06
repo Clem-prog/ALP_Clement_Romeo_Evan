@@ -25,9 +25,9 @@ interface EventAPIService {
     fun createEvent(@Header("X-API-TOKEN") token: String, @Body eventModel: EventRequest): Call<GetEventResponse>
 
     @PUT("api/events/{id}")
-    fun updateEvent(@Header("X-API-TOKEN") token: String, @Path("id") eventId: Int, @Body eventModel: EventRequest): Call<GeneralResponseModel>
+    fun updateEvent(@Header("X-API-TOKEN") token: String, @Path("id") eventId: Int, @Body eventModel: EventRequest): Call<GetEventResponse>
 
     @DELETE("api/events/{id}")
-    fun deleteEvent(@Header("X-API-TOKEN") token: String, @Path("id") eventId: Int): Call<GeneralResponseModel>
+    fun deleteEvent(@Header("X-API-TOKEN") token: String, @Path("id") eventId: Int): Call<GetEventResponse>
 }
 
