@@ -17,7 +17,8 @@ data class EventModel(
     val location: String = "",
     val date: String = "",
     val poster: String = "",
-    val category_id: Int = 0
+    val category_id: Int = 0,
+    val user_id: Int = 0
 
 )
 
@@ -28,5 +29,6 @@ data class EventRequest(
     val location: String = "",
     val date: String = "",
     val poster: String = "",
-    val category_id: Int = 0
+    val category_id: Int = 0,
+    val user_id: Int = 0
 )
