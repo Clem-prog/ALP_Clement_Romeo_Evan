@@ -53,7 +53,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
 import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
+import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
 import com.example.alp_clement_romeo_evan.viewModels.EventDetailViewModel
 import com.example.alp_clement_romeo_evan.views.components.EventCard
 import com.example.alp_clement_romeo_evan.views.components.ReviewCard
@@ -64,14 +66,20 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EventDetails(
     eventDetailViewModel: EventDetailViewModel,
+    authenticationViewModel: AuthenticationViewModel,
     event_id: Int,
-    token: String
+    token: String,
+    user_id: Int,
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     LaunchedEffect(token) {
         eventDetailViewModel.getEventDetails(token, event_id)
     }
+    LaunchedEffect(user_id) {
+        authenticationViewModel.getEventUser(token, user_id)
+    }
     var dataStatus = eventDetailViewModel.dataStatus
+    var userDataStatus = authenticationViewModel.dataStatus
 
     Box(
         modifier = Modifier
@@ -112,21 +120,23 @@ fun EventDetails(
                             Row(
                                 modifier = Modifier.padding(top = 5.dp)
                             ) {
-                                Image(
-                                    painter = painterResource(R.drawable.character_yi),
-                                    contentDescription = "Profile Picture",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .size(25.dp)
-                                        .clip(CircleShape)
-                                )
-                                Text(
-                                    text = "Ignatius Romeo",
-                                    fontSize = 15.sp,
-                                    modifier = Modifier
-                                        .padding(start = 5.dp)
-                                        .align(Alignment.CenterVertically)
-                                )
+                                if (userDataStatus is AuthenticationStatusUIState.GotUser) {
+                                    Image(
+                                        painter = painterResource(R.drawable.character_yi),
+                                        contentDescription = "Profile Picture",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(25.dp)
+                                            .clip(CircleShape)
+                                    )
+                                    Text(
+                                        text = userDataStatus.userModelData.username,
+                                        fontSize = 15.sp,
+                                        modifier = Modifier
+                                            .padding(start = 5.dp)
+                                            .align(Alignment.CenterVertically)
+                                    )
+                                }
                             }
                         }
                         Spacer(Modifier.weight(1f))
@@ -305,8 +315,10 @@ fun DetailsPreview() {
             Column(modifier = Modifier.padding(innerPadding)) {
                 EventDetails(
                     eventDetailViewModel = viewModel(),
+                    authenticationViewModel = viewModel(),
                     event_id = 0,
-                    token = ""
+                    token = "",
+                    user_id = 0,
                 )
             }
         }

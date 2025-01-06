@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.example.alp_clement_romeo_evan.models.AllUserResponse
 import com.example.alp_clement_romeo_evan.models.GeneralResponseModel
 import com.example.alp_clement_romeo_evan.models.LogInResponse
 import com.example.alp_clement_romeo_evan.models.UpdateResponse
@@ -24,6 +25,8 @@ interface UserRepository {
     fun logout(token: String): Call<GeneralResponseModel>
     fun update(token: String, username: String, email: String, userId: Int): Call<UpdateResponse>
     fun getUser(token: String, userId: Int): Call<LogInResponse>
+    fun getEventUser(token: String, userId: Int): Call<LogInResponse>
+    fun getAllUser(): Call<AllUserResponse>
 
     suspend fun saveUserToken(token: String)
 
@@ -87,5 +90,13 @@ class NetworkUserRepository(
 
     override fun getUser(token: String, userId: Int): Call<LogInResponse> {
         return userAPIService.getUser(token, userId)
+    }
+
+    override fun getEventUser(token: String, userId: Int): Call<LogInResponse> {
+        return userAPIService.getEventUser(token, userId)
+    }
+
+    override fun getAllUser(): Call<AllUserResponse> {
+        return userAPIService.getAllUser()
     }
 }

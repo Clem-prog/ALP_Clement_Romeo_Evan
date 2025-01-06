@@ -14,15 +14,14 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
-import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.WonderOfU
 import com.example.alp_clement_romeo_evan.enums.PagesEnum
+import com.example.alp_clement_romeo_evan.models.AllUserResponse
 import com.example.alp_clement_romeo_evan.models.ErrorModel
 import com.example.alp_clement_romeo_evan.models.LogInResponse
 import com.example.alp_clement_romeo_evan.models.UpdateResponse
 import com.example.alp_clement_romeo_evan.models.UserResponse
 import com.example.alp_clement_romeo_evan.repositories.AuthenticationRepository
-import com.example.alp_clement_romeo_evan.repositories.NetworkUserRepository
 import com.example.alp_clement_romeo_evan.repositories.UserRepository
 import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
 import com.example.alp_clement_romeo_evan.uiStates.AuthenticationUIState
@@ -340,6 +339,76 @@ class AuthenticationViewModel(
             } catch (error: IOException) {
                 dataStatus = AuthenticationStatusUIState.Failed(error.localizedMessage)
                 Log.d("get-user-error", "GET USER ERROR: ${error.localizedMessage}")
+            }
+        }
+    }
+
+    fun getEventUser(token: String, userId: Int) {
+        viewModelScope.launch {
+            dataStatus = AuthenticationStatusUIState.Loading
+
+            try {
+                val call = userRepository.getEventUser(token, userId)
+
+                call.enqueue(object : Callback<LogInResponse> {
+                    override fun onResponse(call: Call<LogInResponse>, res: Response<LogInResponse>) {
+                        if (res.isSuccessful) {
+                            dataStatus = AuthenticationStatusUIState.GotUser(res.body()!!.data)
+                        } else {
+                            val errorMessage = Gson().fromJson(
+                                res.errorBody()!!.charStream(),
+                                ErrorModel::class.java
+                            )
+                            Log.d("error-data", "ERROR DATA: ${errorMessage.errors}")
+                            dataStatus = AuthenticationStatusUIState.Failed(errorMessage.errors)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<LogInResponse>, t: Throwable) {
+                        dataStatus = AuthenticationStatusUIState.Failed(t.localizedMessage)
+                        Log.d("get-user-error", "ERROR DATA: ${t.localizedMessage}")
+                    }
+                })
+            } catch (error: IOException) {
+                dataStatus = AuthenticationStatusUIState.Failed(error.localizedMessage)
+                Log.d("get-user-error", "GET USER ERROR: ${error.localizedMessage}")
+            }
+        }
+    }
+
+    fun getAllUser() {
+        viewModelScope.launch {
+            dataStatus = AuthenticationStatusUIState.Loading
+
+            try {
+                val call = userRepository.getAllUser()
+
+                call.enqueue(object : Callback<AllUserResponse> {
+                    override fun onResponse(
+                        call: Call<AllUserResponse>,
+                        res: Response<AllUserResponse>
+                    ) {
+                        if (res.isSuccessful) {
+                            dataStatus = AuthenticationStatusUIState.GotAllUser(res.body()!!.data)
+                        } else {
+                            val errorBody = res.errorBody()?.charStream()
+                            val errorMessage = if (errorBody != null) {
+                                Gson().fromJson(errorBody, ErrorModel::class.java)
+                            } else {
+                                null
+                            }
+
+                            val errorText = errorMessage?.errors ?: "Unknown error occurred"
+                            dataStatus = AuthenticationStatusUIState.Failed(errorText)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<AllUserResponse>, t: Throwable) {
+                        dataStatus = AuthenticationStatusUIState.Failed(t.localizedMessage)
+                    }
+                })
+            } catch (error: IOException) {
+                dataStatus = AuthenticationStatusUIState.Failed(error.localizedMessage)
             }
         }
     }
