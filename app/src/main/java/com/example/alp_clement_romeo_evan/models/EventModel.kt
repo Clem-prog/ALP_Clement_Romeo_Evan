@@ -9,6 +9,7 @@ data class GetEventResponse (
 )
 
 data class EventModel(
+
     val id: Int = 0,
     val title: String = "",
     val isOngoing: Boolean = false,
@@ -17,6 +18,7 @@ data class EventModel(
     val date: String = "",
     val poster: String = "",
     val category_id: Int = 0
+
 )
 
 data class EventRequest(

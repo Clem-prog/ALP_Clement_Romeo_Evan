@@ -17,8 +17,10 @@ data class ReviewModel(
 )
 
 data class ReviewRequest(
+
     val user_id: Int = 0,
     val event_id: Int = 0,
     val rating: Int = 0,
     val comment: String = ""
+
 )

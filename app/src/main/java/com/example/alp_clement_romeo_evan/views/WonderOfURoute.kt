@@ -34,14 +34,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.WonderOfU
 import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
 import com.example.alp_clement_romeo_evan.viewModels.CategoryViewModel
+import com.example.alp_clement_romeo_evan.viewModels.EventDetailViewModel
 import com.example.alp_clement_romeo_evan.viewModels.EventFormViewModel
 import com.example.alp_clement_romeo_evan.viewModels.HomeViewModel
 
@@ -52,7 +55,8 @@ fun WonderOfU(
     authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory),
     homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
     eventFormViewModel: EventFormViewModel = viewModel(factory = EventFormViewModel.Factory),
-    categoryViewModel: CategoryViewModel = viewModel(factory = CategoryViewModel.Factory)
+    categoryViewModel: CategoryViewModel = viewModel(factory = CategoryViewModel.Factory),
+    eventDetailViewModel: EventDetailViewModel = viewModel(factory = EventDetailViewModel.Factory)
 ) {
     val localContext = LocalContext.current
     val token = homeViewModel.token.collectAsState()
@@ -90,14 +94,37 @@ fun WonderOfU(
                 content = {
                     HomeView(
                         categoryViewModel = categoryViewModel,
+                        eventDetailViewModel = eventDetailViewModel,
+                        authenticationViewModel = authenticationViewModel,
+                        navController = navController,
                         token = token.value,
                         isAdmin = isAdmin.value
-
                     )
                 },
                 title = "Home",
             )
         }
+
+        composable(
+            route = PagesEnum.EventDetail.name + "/{id}",
+            arguments = listOf(
+                navArgument("id") {type = NavType.IntType}
+            )
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id")
+            ScaffoldMain(
+                navController = navController,
+                content = {
+                    EventDetails(
+                        eventDetailViewModel = eventDetailViewModel,
+                        event_id = id!!,
+                        token = token.value
+                    )
+                },
+                title = "Event Details",
+            )
+        }
+
         composable(route = PagesEnum.Profile.name) {
             ScaffoldMain(
                 navController = navController,

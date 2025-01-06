@@ -327,7 +327,7 @@ class EventFormViewModel(
                         val jsonResponse = JSONObject(responseBody)
                         val secureUrl = jsonResponse.getString("secure_url")
                         Log.d("Cloudinary Upload", "Image uploaded to: $secureUrl")
-                        return@withContext secureUrl // Retrieve and return the secure URL
+                        return@withContext secureUrl
                     }
                 } else {
                     Log.e("Cloudinary Upload", "Upload failed: ${response.message}")
@@ -337,7 +337,7 @@ class EventFormViewModel(
                 Log.e("Cloudinary Upload", "Exception: ${e.localizedMessage}")
                 throw IOException("Error uploading image: ${e.localizedMessage}")
             }
-            return@withContext "" // Return empty string in case of failure
+            return@withContext ""
         }
     }
 

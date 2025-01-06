@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
+import android.annotation.SuppressLint
 import android.graphics.Paint.Align
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,14 +49,29 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
 import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
+import com.example.alp_clement_romeo_evan.viewModels.EventDetailViewModel
 import com.example.alp_clement_romeo_evan.views.components.EventCard
 import com.example.alp_clement_romeo_evan.views.components.ReviewCard
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
+@SuppressLint("NewApi")
 @Composable
-fun EventDetails() {
+fun EventDetails(
+    eventDetailViewModel: EventDetailViewModel,
+    event_id: Int,
+    token: String
+) {
     var isExpanded by remember { mutableStateOf(false) }
+    LaunchedEffect(token) {
+        eventDetailViewModel.getEventDetails(token, event_id)
+    }
+    var dataStatus = eventDetailViewModel.dataStatus
 
     Box(
         modifier = Modifier
@@ -62,95 +79,114 @@ fun EventDetails() {
             .verticalScroll(rememberScrollState())
             .background(color = Color(0xFFD3FFD4))
     ) {
-        Column(
-            modifier = Modifier
-                .padding(20.dp)
-                .fillMaxWidth()
-        ) {
-            Image(
-                painter = painterResource(R.drawable.character_yi),
-                contentDescription = "image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .size(200.dp)
-                    .shadow(
-                        elevation = 4.dp,
-                        shape = RoundedCornerShape(8.dp)
-                    )
-            )
+        when (dataStatus) {
+            is EventDataStatusUIState.Success ->
+                Column(
+                    modifier = Modifier
+                        .padding(20.dp)
+                        .fillMaxWidth()
+                ) {
+                    val formatter = DateTimeFormatter.ISO_DATE_TIME
+                    val showDate = OffsetDateTime.parse(dataStatus.data.date, formatter)
 
-            Row(modifier = Modifier.padding(top = 15.dp)) {
-                Column {
-                    Text(
-                        text = "Event Name",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 25.sp,
+                    Image(
+                        painter = rememberAsyncImagePainter(dataStatus.data.poster),
+                        contentDescription = "image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .size(200.dp)
+                            .shadow(
+                                elevation = 4.dp,
+                                shape = RoundedCornerShape(8.dp)
+                            )
                     )
-                    Row(
-                        modifier = Modifier.padding(top = 5.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.character_yi), // Replace with your image resource
-                            contentDescription = "Profile Picture",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(25.dp)
-                                .clip(CircleShape)
-                        )
+
+                    Row(modifier = Modifier.padding(top = 15.dp)) {
+                        Column {
+                            Text(
+                                text = dataStatus.data.title,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 25.sp,
+                            )
+                            Row(
+                                modifier = Modifier.padding(top = 5.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.character_yi),
+                                    contentDescription = "Profile Picture",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(25.dp)
+                                        .clip(CircleShape)
+                                )
+                                Text(
+                                    text = "Ignatius Romeo",
+                                    fontSize = 15.sp,
+                                    modifier = Modifier
+                                        .padding(start = 5.dp)
+                                        .align(Alignment.CenterVertically)
+                                )
+                            }
+                        }
+                        Spacer(Modifier.weight(1f))
                         Text(
-                            text = "Ignatius Romeo",
+                            text = showDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                             fontSize = 15.sp,
-                            modifier = Modifier
-                                .padding(start = 5.dp)
-                                .align(Alignment.CenterVertically)
                         )
                     }
-                }
-                Spacer(Modifier.weight(1f))
-                Text(
-                    text = "21-12-2024",
-                    fontSize = 15.sp,
-                )
-            }
-            Text(
-                text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris id nibh nulla. Sed est quam, eleifend non posuere fermentum, dignissim eget nibh. Sed luctus ornare ligula eget consequat. Aenean a arcu eu nulla vestibulum interdum. Nam auctor commodo vestibulum. Etiam a faucibus arcu. Nulla eget neque non est tincidunt consectetur. Cras sed lacus in eros tincidunt hendrerit ac varius dolor. Cras vestibulum massa augue, eu semper eros consectetur ut. Nulla sed porta felis, et commodo purus. Praesent quis gravida justo. Ut consequat tempus rhoncus.\n" +
-                        "\n" +
-                        "Duis non accumsan nulla. Suspendisse potenti. Sed sit amet consectetur augue. Pellentesque ac ullamcorper diam, a ornare nulla. Nulla convallis, purus vel auctor ullamcorper, augue dui malesuada lectus, quis tincidunt odio dui sit amet lacus. Etiam sed pretium quam. Aenean sollicitudin blandit neque ac suscipit. Nam sed ante non diam volutpat volutpat nec eu erat. Donec ultrices lobortis nisl vel egestas. Donec luctus at arcu nec vestibulum. Maecenas feugiat orci ut tempor tempus. Donec feugiat, justo eu pellentesque viverra, nisl leo pretium eros, accumsan convallis justo ipsum at nulla. Aenean finibus tortor quis ligula placerat rhoncus. ",
-                fontSize = 17.sp,
-                lineHeight = 20.sp,
-                maxLines = if (isExpanded) Int.MAX_VALUE else 6,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(top = 15.dp, bottom = 7.dp)
-                    .clickable {
-                        isExpanded = !isExpanded
+                    Text(
+                        text = dataStatus.data.description,
+                        fontSize = 17.sp,
+                        lineHeight = 20.sp,
+                        maxLines = if (isExpanded) Int.MAX_VALUE else 6,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .padding(top = 15.dp, bottom = 7.dp)
+                            .clickable {
+                                isExpanded = !isExpanded
+                            }
+                    )
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 5.dp)
+                            .size(50.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFF9FFC9),
+                            contentColor = Color.Black
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        onClick = {}
+                    ) {
+                        Text(
+                            text = "Attend Event",
+                            fontSize = 15.sp
+                        )
                     }
-            )
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 5.dp)
-                    .size(50.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFF9FFC9),
-                    contentColor = Color.Black
-                ),
-                shape = RoundedCornerShape(10.dp),
-                onClick = {}
-            ) {
-                Text(
-                    text = "Attend Event",
-                    fontSize = 15.sp
-                )
-            }
-            /*Text(
-                text = "Review(s):",
-                modifier = Modifier.padding(bottom = 5.dp)
-            )
-            ReviewCard()
-            ReviewCard()*/ //this is for admins and history dont erase for now
+                    /*Text(
+                        text = "Review(s):",
+                        modifier = Modifier.padding(bottom = 5.dp)
+                    )
+                    ReviewCard()
+                    ReviewCard()*/ //this is for admins and history dont erase for now
+                }
+
+            else ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "No Data Found!",
+                        fontSize = 21.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
         }
+
     }
 }
 
@@ -267,7 +303,11 @@ fun DetailsPreview() {
             },
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                EventDetails()
+                EventDetails(
+                    eventDetailViewModel = viewModel(),
+                    event_id = 0,
+                    token = ""
+                )
             }
         }
     }
