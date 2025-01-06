@@ -16,7 +16,8 @@ data class EventModel(
     val location: String,
     val date: String,
     val poster: String,
-    val category_id: Int
+    val category_id: Int,
+    val user_id: Int,
 )
 
 
