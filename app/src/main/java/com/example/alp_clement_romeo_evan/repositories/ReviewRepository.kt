@@ -29,14 +29,14 @@ class NetworkReviewRepository(
 
     override fun createReview(
         token: String,
-        userId: Int,
-        eventId: Int,
+        user_id: Int,
+        event_id: Int,
         rating: Int,
         comment: String
     ): Call<GeneralResponseModel> {
         return reviewAPIService.createReview(
             token,
-            ReviewRequest(userId, eventId, rating, comment)
+            ReviewRequest(user_id, event_id, rating, comment)
         )
     }
 

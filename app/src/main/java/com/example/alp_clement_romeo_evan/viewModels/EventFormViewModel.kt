@@ -22,7 +22,9 @@ import com.example.alp_clement_romeo_evan.models.GetEventResponse
 import com.example.alp_clement_romeo_evan.repositories.EventRepository
 import com.example.alp_clement_romeo_evan.repositories.UserRepository
 import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
+import com.example.alp_clement_romeo_evan.uiStates.EventDetailStatusUIState
 import com.example.alp_clement_romeo_evan.uiStates.EventFormUIState
+import com.example.alp_clement_romeo_evan.uiStates.StringDataStatusUIState
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,6 +56,13 @@ class EventFormViewModel(
 
     var eventId by mutableStateOf(0)
         private set
+
+    var dataStatus: EventDetailStatusUIState by mutableStateOf(EventDetailStatusUIState.Start)
+        private set
+
+    var deleteStatus: StringDataStatusUIState by mutableStateOf(StringDataStatusUIState.Start)
+        private set
+
 
     var submissionStatus: EventDataStatusUIState by mutableStateOf(EventDataStatusUIState.Start)
         private set
@@ -114,6 +123,8 @@ class EventFormViewModel(
         }
     }
 
+
+
     fun createEvent(navController: NavHostController, token: String, context: Context) {
         viewModelScope.launch {
             submissionStatus = EventDataStatusUIState.Loading
@@ -170,6 +181,84 @@ class EventFormViewModel(
         }
     }
 
+    fun updateEvent(token: String, getEvent: () -> Unit) {
+        viewModelScope.launch {
+            submissionStatus = EventDataStatusUIState.Loading
+
+            try {
+                val call = eventRepository.updateEvent(token, eventId, titleInput, isOngoingInput, descriptionInput, locationInput, dateInput, posterInput, categoryIdInput)
+
+                call.enqueue(object: Callback<GetEventResponse>  {
+                    override fun onResponse(
+                        call: Call<GetEventResponse>,
+                        res: Response<GetEventResponse>
+                    )  {
+                        if (res.isSuccessful) {
+                            submissionStatus = EventDataStatusUIState.Success(res.body()!!.data)
+
+                            resetViewModel()
+
+                            getEvent()
+                        } else {
+                            val errorMessage = Gson().fromJson(
+                                res.errorBody()!!.charStream(),
+                                ErrorModel::class.java
+                            )
+
+                            submissionStatus = EventDataStatusUIState.Failed(errorMessage.errors)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<GetEventResponse>, t: Throwable) {
+                        submissionStatus = EventDataStatusUIState.Failed(t.localizedMessage)
+                    }
+
+                })
+            } catch (error: IOException) {
+                submissionStatus = EventDataStatusUIState.Failed(error.localizedMessage)
+            }
+        }
+    }
+
+
+    fun deleteEvent(token: String, eventId: Int, navController: NavHostController) {
+        viewModelScope.launch {
+            submissionStatus = EventDataStatusUIState.Loading
+
+            try {
+                val call = eventRepository.deleteEvent(token, eventId)
+
+                call.enqueue(object: Callback<GetEventResponse> {
+                    override fun onResponse(
+                        call: Call<GetEventResponse>,
+                        res: Response<GetEventResponse>
+                    ) {
+                        if (res.isSuccessful) {
+                            submissionStatus = EventDataStatusUIState.Success(res.body()!!.data)
+
+                            Log.d("delete-status", "Delete status: ${res.body()!!.data}")
+
+                        } else {
+                            val errorMessage = Gson().fromJson(
+                                res.errorBody()!!.charStream(),
+                                ErrorModel::class.java
+                            )
+
+                            submissionStatus = EventDataStatusUIState.Failed(errorMessage.errors)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<GetEventResponse>, t: Throwable) {
+                        submissionStatus = EventDataStatusUIState.Failed(t.localizedMessage)
+                    }
+
+                })
+            } catch (error: IOException) {
+                submissionStatus = EventDataStatusUIState.Failed(error.localizedMessage)
+            }
+        }
+    }
+
     fun clearErrorMessage() {
         submissionStatus = EventDataStatusUIState.Start
     }
@@ -209,7 +298,6 @@ class EventFormViewModel(
         return withContext(Dispatchers.IO) {
             try {
                 val client = OkHttpClient()
-
                 val contentResolver = context.contentResolver
                 val inputStream = contentResolver.openInputStream(posterUri)
                     ?: throw IOException("Failed to open InputStream for URI: $posterUri")
