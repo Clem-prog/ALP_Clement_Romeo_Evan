@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +47,7 @@ import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.models.EventModel
 import com.example.alp_clement_romeo_evan.repositories.CategoryRepository
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
 import com.example.alp_clement_romeo_evan.uiStates.CategoryUIState
 import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
@@ -66,11 +68,13 @@ fun HomeView(
     LaunchedEffect(token) {
         categoryViewModel.getAllCategories(token)
         eventDetailViewModel.getAllEvents(token)
+        authenticationViewModel.getAllUser()
     }
 
     val (selectedCategory, setSelectedCategory) = rememberSaveable { mutableStateOf("My Feed") }
     val dataStatus = categoryViewModel.dataStatus
     val eventDataStatus = eventDetailViewModel.dataStatus
+    val userDataStatus = authenticationViewModel.dataStatus
 
     Box(
         modifier = Modifier
@@ -107,15 +111,20 @@ fun HomeView(
                 when (eventDataStatus) {
                     is EventDataStatusUIState.GetAllSuccess ->
                         items(eventDataStatus.data.size) { index ->
-                            val event =eventDataStatus.data[index]
+                            val event = eventDataStatus.data[index]
+                            var username = "Unknown User"
+
+                            if (userDataStatus is AuthenticationStatusUIState.GotAllUser) {
+                                username = userDataStatus.userModelData
+                                    .find { it.id == event.user_id }?.username ?: "Unknown User"
+                            }
+
                             EventCard(
                                 title = event.title,
                                 date = event.date,
                                 poster = event.poster,
-                                user_id = event.user_id,
-                                token = token,
-                                authenticationViewModel = authenticationViewModel,
-                                onClickCard = { navController.navigate(PagesEnum.EventDetail.name + "/${event.id}")}
+                                name = username,
+                                onClickCard = { navController.navigate("${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}") }
                             )
                         }
 

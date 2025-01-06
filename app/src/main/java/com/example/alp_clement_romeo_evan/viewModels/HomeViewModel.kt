@@ -81,10 +81,10 @@ class HomeViewModel(
                         if (res.isSuccessful) {
                             logoutStatus = StringDataStatusUIState.Success(data = res.body()!!.data)
 
-                            saveUsernameToken("Unknown", false, 0)
+                            saveUsernameToken("", false, 0)
 
-                            navController.navigate(PagesEnum.Login.name) {
-                                popUpTo(PagesEnum.Home.name) {
+                            navController.navigate(PagesEnum.Start.name) {
+                                popUpTo(PagesEnum.Profile.name) {
                                     inclusive = true
                                 }
                             }

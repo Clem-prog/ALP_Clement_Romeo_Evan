@@ -8,6 +8,7 @@ import com.example.alp_clement_romeo_evan.models.UserUpdate
 sealed interface AuthenticationStatusUIState {
     data class Success(val userModelData: UserModel): AuthenticationStatusUIState
     data class GotUser(val userModelData: UserData): AuthenticationStatusUIState
+    data class GotAllUser(val userModelData: List<UserData>): AuthenticationStatusUIState
     data class Updated(val userModelData: UserUpdate): AuthenticationStatusUIState
     object Loading: AuthenticationStatusUIState
     object Start: AuthenticationStatusUIState
