@@ -140,6 +140,7 @@ fun WonderOfU(
                         authenticationViewModel = authenticationViewModel,
                         event_id = event_id!!,
                         token = token.value,
+                        isAdmin = isAdmin.value,
                         user_id = user_id!!
                     )
                 },

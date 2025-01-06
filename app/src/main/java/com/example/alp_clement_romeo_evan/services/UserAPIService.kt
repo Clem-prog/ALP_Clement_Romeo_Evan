@@ -15,7 +15,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface UserAPIService {
-    @DELETE("api/logout")
+    @POST("api/logout")
     fun logout(@Header("X-API-TOKEN") token: String): Call<GeneralResponseModel>
 
     @GET("api/user/{id}")
