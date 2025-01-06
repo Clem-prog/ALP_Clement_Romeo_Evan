@@ -38,26 +38,39 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.R
+import com.example.alp_clement_romeo_evan.enums.PagesEnum
+import com.example.alp_clement_romeo_evan.models.EventModel
 import com.example.alp_clement_romeo_evan.repositories.CategoryRepository
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
 import com.example.alp_clement_romeo_evan.uiStates.CategoryUIState
+import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
+import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
 import com.example.alp_clement_romeo_evan.viewModels.CategoryViewModel
+import com.example.alp_clement_romeo_evan.viewModels.EventDetailViewModel
 import com.example.alp_clement_romeo_evan.views.components.EventCard
 import com.example.alp_clement_romeo_evan.views.components.categoriesButton
 
 @Composable
 fun HomeView(
     categoryViewModel: CategoryViewModel,
+    eventDetailViewModel: EventDetailViewModel,
+    authenticationViewModel: AuthenticationViewModel,
+    navController: NavController,
     token: String,
     isAdmin: Boolean
 ) {
     LaunchedEffect(token) {
         categoryViewModel.getAllCategories(token)
+        eventDetailViewModel.getAllEvents(token)
     }
 
     val (selectedCategory, setSelectedCategory) = rememberSaveable { mutableStateOf("My Feed") }
     val dataStatus = categoryViewModel.dataStatus
+    val eventDataStatus = eventDetailViewModel.dataStatus
 
     Box(
         modifier = Modifier
@@ -91,14 +104,27 @@ fun HomeView(
                 }
             }
             LazyColumn {
-                item {
-                    EventCard()
-                }
-                item {
-                    EventCard()
-                }
-                item {
-                    EventCard()
+                when (eventDataStatus) {
+                    is EventDataStatusUIState.GetAllSuccess ->
+                        items(eventDataStatus.data.size) { index ->
+                            val event =eventDataStatus.data[index]
+                            EventCard(
+                                title = event.title,
+                                date = event.date,
+                                poster = event.poster,
+                                user_id = event.user_id,
+                                token = token,
+                                authenticationViewModel = authenticationViewModel,
+                                onClickCard = { navController.navigate(PagesEnum.EventDetail.name + "/${event.id}")}
+                            )
+                        }
+
+                    else -> item {
+                        Text(
+                            text = "No categories here!",
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
                 }
             }
         }
@@ -220,6 +246,9 @@ fun HomePreview() {
             Column(modifier = Modifier.padding(innerPadding)) {
                 HomeView(
                     categoryViewModel = viewModel(),
+                    eventDetailViewModel = viewModel(),
+                    authenticationViewModel = viewModel(),
+                    navController = rememberNavController(),
                     token = "",
                     isAdmin = false
                 )

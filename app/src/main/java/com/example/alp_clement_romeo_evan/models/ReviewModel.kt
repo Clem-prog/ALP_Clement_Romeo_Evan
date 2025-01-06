@@ -17,7 +17,6 @@ data class ReviewModel(
 )
 
 data class ReviewRequest(
-    val id: Int,
     val user_id: Int,
     val event_id: Int,
     val rating: Int,

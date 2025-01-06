@@ -1,6 +1,8 @@
 package com.example.alp_clement_romeo_evan.views.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
@@ -9,6 +11,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,23 +19,51 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
+import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
+@SuppressLint("NewApi")
 @Composable
-fun EventCard() {
+fun EventCard(
+    title: String,
+    date: String,
+    poster: String,
+    user_id: Int,
+    token: String,
+    authenticationViewModel: AuthenticationViewModel,
+    onClickCard: () -> Unit = {}
+) {
+    val formatter = DateTimeFormatter.ISO_DATE_TIME
+    val showDate = OffsetDateTime.parse(date, formatter)
+    val painter = rememberAsyncImagePainter(poster)
+    val dataStatus = authenticationViewModel.dataStatus
+    LaunchedEffect(token) {
+        authenticationViewModel.getUserInfo(token, user_id)
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 7.dp, horizontal = 15.dp)
-            .height(280.dp),
+            .height(280.dp)
+            .clickable(onClick = onClickCard),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFD3FFD4)),
     ) {
         Image(
-            painter = painterResource(id = R.drawable.character_yi),
+            painter = painter,
             contentDescription = "Event Image",
             modifier = Modifier
                 .fillMaxWidth()
@@ -46,19 +77,30 @@ fun EventCard() {
         ) {
             Column {
                 Text(
-                    text = "Event 1",
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.Bold
+                    text = title,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1, // Limits to one line
+                    overflow = TextOverflow.Ellipsis, // Adds ellipses if the text is too long
+                    modifier = Modifier.widthIn(max = 230.dp)
                 )
-                Text(
-                    text = "By Ignatius Romeo",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
+                when(dataStatus) {
+                    is AuthenticationStatusUIState.GotUser ->
+                        Text(
+                            text = "By ${dataStatus.userModelData.username}",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    else -> Text(
+                        text = "By Unknown User",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                }
             }
             Spacer(Modifier.weight(1f))
             Text(
-                text = "21-12-2024",
+                text = showDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier

@@ -58,7 +58,6 @@ fun EventHistoryView() {
                     .padding(horizontal = 15.dp)
                     .padding(top = 15.dp)
             )
-            EventCard()
         }
     }
 }
