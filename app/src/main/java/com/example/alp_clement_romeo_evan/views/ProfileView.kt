@@ -40,8 +40,10 @@ fun ProfileView(
     homeViewModel: HomeViewModel,
     context: Context,
 ) {
-    LaunchedEffect(token) {
-        authenticationViewModel.getUserInfo(token, userId)
+    if (token.isNotEmpty()) {
+        LaunchedEffect(token) {
+            authenticationViewModel.getUserInfo(token, userId)
+        }
     }
 
     val dataStatus = authenticationViewModel.dataStatus

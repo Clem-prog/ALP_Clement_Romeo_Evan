@@ -70,6 +70,7 @@ fun EventDetails(
     event_id: Int,
     token: String,
     user_id: Int,
+    isAdmin: Boolean
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     LaunchedEffect(token) {
@@ -157,22 +158,24 @@ fun EventDetails(
                                 isExpanded = !isExpanded
                             }
                     )
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 5.dp)
-                            .size(50.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFF9FFC9),
-                            contentColor = Color.Black
-                        ),
-                        shape = RoundedCornerShape(10.dp),
-                        onClick = {}
-                    ) {
-                        Text(
-                            text = "Attend Event",
-                            fontSize = 15.sp
-                        )
+                    if (!isAdmin) {
+                        Button(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 5.dp)
+                                .size(50.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFF9FFC9),
+                                contentColor = Color.Black
+                            ),
+                            shape = RoundedCornerShape(10.dp),
+                            onClick = {}
+                        ) {
+                            Text(
+                                text = "Attend Event",
+                                fontSize = 15.sp
+                            )
+                        }
                     }
                     /*Text(
                         text = "Review(s):",
@@ -318,6 +321,7 @@ fun DetailsPreview() {
                     authenticationViewModel = viewModel(),
                     event_id = 0,
                     token = "",
+                    isAdmin = false,
                     user_id = 0,
                 )
             }
