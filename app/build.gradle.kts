@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.alp_clement_romeo_evan"
-        minSdk = 24
+        minSdk = 26
         //noinspection EditedTargetSdkVersion
         targetSdk = 35
         versionCode = 1

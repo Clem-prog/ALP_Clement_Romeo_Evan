@@ -10,8 +10,8 @@ import retrofit2.Call
 interface AnnouncementRepository {
     fun getAllAnnouncements(token: String): Call<GetAllAnnouncementResponse>
     fun getAnnouncementById(token: String, announcementId: Int): Call<GetAnnouncementResponse>
-    fun createAnnouncement(token: String, content: String, date: String, eventId: Int): Call<GeneralResponseModel>
-    fun updateAnnouncement(token: String, announcementId: Int, content: String, date: String, eventId: Int): Call<GeneralResponseModel>
+    fun createAnnouncement(token: String, content: String, date: String, eventId: Int): Call<GetAnnouncementResponse>
+    fun updateAnnouncement(token: String, announcementId: Int, content: String): Call<GetAnnouncementResponse>
     fun deleteAnnouncement(token: String, announcementId: Int): Call<GeneralResponseModel>
 }
 
@@ -34,7 +34,7 @@ class NetworkAnnouncementRepository(
         content: String,
         date: String,
         eventId: Int
-    ): Call<GeneralResponseModel> {
+    ): Call<GetAnnouncementResponse> {
         return announcementAPIService.createAnnouncement(
             token,
             AnnouncementRequest(content, date, eventId)
@@ -44,14 +44,12 @@ class NetworkAnnouncementRepository(
     override fun updateAnnouncement(
         token: String,
         announcementId: Int,
-        content: String,
-        date: String,
-        eventId: Int
-    ): Call<GeneralResponseModel> {
+        content: String
+    ): Call<GetAnnouncementResponse> {
         return announcementAPIService.updateAnnouncement(
             token,
             announcementId,
-            AnnouncementRequest(content, date, eventId)
+            AnnouncementRequest(content)
         )
     }
 

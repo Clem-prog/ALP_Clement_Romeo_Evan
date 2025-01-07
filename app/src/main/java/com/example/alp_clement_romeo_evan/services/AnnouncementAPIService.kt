@@ -8,13 +8,14 @@ import com.example.alp_clement_romeo_evan.models.GetAnnouncementResponse
 import retrofit2.Call
 import retrofit2.http.*
 
-interface AnnouncementAPIService { @GET("announcements") fun getAllAnnouncements(@Header("Authorization") token: String): Call<GetAllAnnouncementResponse>
+interface AnnouncementAPIService {
+    @GET("api/announcements") fun getAllAnnouncements(@Header("X-API-TOKEN") token: String): Call<GetAllAnnouncementResponse>
 
-    @GET("announcements/{id}") fun getAnnouncementById(@Header("Authorization") token: String, @Path("id") id: Int): Call<GetAnnouncementResponse>
+    @GET("api/announcements/{id}") fun getAnnouncementById(@Header("X-API-TOKEN") token: String, @Path("id") id: Int): Call<GetAnnouncementResponse>
 
-    @POST("announcements") fun createAnnouncement(@Header("Authorization") token: String, @Body request: AnnouncementRequest): Call<GeneralResponseModel>
+    @POST("api/announcements") fun createAnnouncement(@Header("X-API-TOKEN") token: String, @Body request: AnnouncementRequest): Call<GetAnnouncementResponse>
 
-    @PUT("announcements/{id}") fun updateAnnouncement(@Header("Authorization") token: String, @Path("id") id: Int, @Body request: AnnouncementRequest): Call<GeneralResponseModel>
+    @PUT("api/announcements/{id}") fun updateAnnouncement(@Header("X-API-TOKEN") token: String, @Path("id") id: Int, @Body request: AnnouncementRequest): Call<GetAnnouncementResponse>
 
-    @DELETE("announcements/{id}") fun deleteAnnouncement(@Header("Authorization") token: String, @Path("id") id: Int): Call<GeneralResponseModel>
+    @DELETE("api/announcements/{id}") fun deleteAnnouncement(@Header("X-API-TOKEN") token: String, @Path("id") id: Int): Call<GeneralResponseModel>
 }

@@ -29,6 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.alp_clement_romeo_evan.R
+import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
 import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
@@ -44,6 +45,7 @@ fun EventCard(
     title: String,
     date: String,
     poster: String,
+    navController: NavController,
     name: String,
     onClickCard: () -> Unit = {}
 ) {
@@ -105,6 +107,7 @@ fun EventCardWithButtons(
     title: String,
     date: String,
     poster: String,
+    event_id: Int,
     navController: NavController, //for update and create announcement
     onClickCard: () -> Unit = {}
 ) {
@@ -160,7 +163,7 @@ fun EventCardWithButtons(
         }
         Row {
             FilledTonalButton(
-                onClick = { },
+                onClick = { navController.navigate("${PagesEnum.CreateAnnouncement.name}/${event_id}") },
                 colors = ButtonDefaults.filledTonalButtonColors(
                     containerColor = Color(0xFFC1FF69),
                     contentColor = Color.Black
@@ -247,6 +250,7 @@ fun CardPreview() {
             title = "",
             date = "",
             poster = "",
+            event_id = 0,
             navController = rememberNavController(), //for update and create announcement
             onClickCard = {}
         )

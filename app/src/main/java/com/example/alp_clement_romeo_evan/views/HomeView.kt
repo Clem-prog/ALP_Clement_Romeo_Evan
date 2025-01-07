@@ -149,6 +149,7 @@ fun HomeView(
                                     date = event.date,
                                     poster = event.poster,
                                     name = username,
+                                    navController = navController,
                                     onClickCard = {
                                         navController.navigate(
                                             "${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}"
@@ -161,7 +162,7 @@ fun HomeView(
 
                     else -> item {
                         Text(
-                            text = "No categories here!",
+                            text = "Nothing here!",
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }

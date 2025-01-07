@@ -82,6 +82,7 @@ fun EventHistoryView(
                             date = event.date,
                             poster = event.poster,
                             navController = navController,
+                            event_id = event.id,
                             onClickCard = {
                                 navController.navigate("${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}")
                             }
@@ -92,11 +93,12 @@ fun EventHistoryView(
             if (dataStatus is EventDataStatusUIState.GetAllSuccess) {
                 dataStatus.data.forEach { event ->
                     if (!event.isOngoing) {
-                        EventCardWithButtons(
+                        EventCard(
                             title = event.title,
                             date = event.date,
                             poster = event.poster,
                             navController = navController,
+                            name = "",
                             onClickCard = {
                                 navController.navigate("${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}")
                             }
