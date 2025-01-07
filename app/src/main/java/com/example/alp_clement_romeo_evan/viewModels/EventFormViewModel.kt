@@ -123,8 +123,6 @@ class EventFormViewModel(
         }
     }
 
-
-
     fun createEvent(navController: NavHostController, token: String, context: Context) {
         viewModelScope.launch {
             submissionStatus = EventDataStatusUIState.Loading
@@ -292,7 +290,6 @@ class EventFormViewModel(
         }
         return uploadSuccess
     }
-
 
     private suspend fun uploadPosterToCloudinary(posterUri: Uri, context: Context): String {
         return withContext(Dispatchers.IO) {
