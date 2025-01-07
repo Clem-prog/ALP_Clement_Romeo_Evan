@@ -75,7 +75,7 @@ class CategoryViewModel(
         }
     }
 
-    fun deleteTodo(token: String, categoryId: Int, navController: NavHostController) {
+    fun deleteCategory(token: String, categoryId: Int, navController: NavHostController) {
         viewModelScope.launch {
             deleteStatus = StringDataStatusUIState.Loading
 

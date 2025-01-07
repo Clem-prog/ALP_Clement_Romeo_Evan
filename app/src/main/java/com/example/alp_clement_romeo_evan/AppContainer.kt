@@ -6,14 +6,17 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.alp_clement_romeo_evan.repositories.AnnouncementRepository
 import com.example.alp_clement_romeo_evan.repositories.AuthenticationRepository
 import com.example.alp_clement_romeo_evan.repositories.CategoryRepository
 import com.example.alp_clement_romeo_evan.repositories.EventRepository
+import com.example.alp_clement_romeo_evan.repositories.NetworkAnnouncementRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkAuthenticationRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkCategoryRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkEventRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkUserRepository
 import com.example.alp_clement_romeo_evan.repositories.UserRepository
+import com.example.alp_clement_romeo_evan.services.AnnouncementAPIService
 import com.example.alp_clement_romeo_evan.services.AuthenticationAPIService
 import com.example.alp_clement_romeo_evan.services.CategoryAPIService
 import com.example.alp_clement_romeo_evan.services.EventAPIService
@@ -31,6 +34,7 @@ interface AppContainer {
     val userRepository: UserRepository
     val eventRepository: EventRepository
     val categoryRepository: CategoryRepository
+    val announcementRepository: AnnouncementRepository
 }
 
 class DefaultAppContainer(
@@ -66,6 +70,12 @@ class DefaultAppContainer(
         retrofit.create(CategoryAPIService::class.java)
     }
 
+    private val announcementRetrofitService: AnnouncementAPIService by lazy {
+        val retrofit = initRetrofit()
+
+        retrofit.create(AnnouncementAPIService::class.java)
+    }
+
     // REPOSITORY INIT
     // Passing in the required objects is called dependency injection (DI). It is also known as inversion of control.
     override val authenticationRepository: AuthenticationRepository by lazy {
@@ -82,6 +92,10 @@ class DefaultAppContainer(
 
     override val categoryRepository: CategoryRepository by lazy {
         NetworkCategoryRepository(categoryRetrofitService)
+    }
+
+    override val announcementRepository: AnnouncementRepository by lazy {
+        NetworkAnnouncementRepository(announcementRetrofitService)
     }
 
     private fun initRetrofit(): Retrofit {

@@ -1,11 +1,16 @@
 package com.example.alp_clement_romeo_evan.views
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -15,12 +20,44 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.AnnouncementStatusUIState
+import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
+import com.example.alp_clement_romeo_evan.viewModels.AnnouncementViewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateAnnouncementView() {
+fun CreateAnnouncementView(
+    announcementViewModel: AnnouncementViewModel,
+    navController: NavHostController,
+    token: String,
+    event_id: Int,
+    isEditing: Boolean
+) {
+    val createUIState by announcementViewModel.authenticationUIState.collectAsState()
+    val dataStatus = announcementViewModel.dataStatus
+
+    if (isEditing) {
+        LaunchedEffect(event_id) {
+            announcementViewModel.getAnnouncementById(token, event_id)
+        }
+
+        if (dataStatus is AnnouncementStatusUIState.Success) {
+            LaunchedEffect(dataStatus) {
+                announcementViewModel.changeContentInput(dataStatus.data.content)
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -36,9 +73,13 @@ fun CreateAnnouncementView() {
             modifier = Modifier.align(Alignment.Start)
         )
         Spacer(modifier = Modifier.height(8.dp))
+
         TextField(
-            value = "",
-            onValueChange = { /* Handle text change */ },
+            value = announcementViewModel.contentInput,
+            onValueChange = {
+                announcementViewModel.changeContentInput(it)
+                announcementViewModel.checkAnnouncementForm()
+            },
             placeholder = { Text("Insert Announcement Here") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -56,21 +97,45 @@ fun CreateAnnouncementView() {
             contentAlignment = Alignment.CenterEnd
         ) {
             Button(
-                onClick = {  },
+                onClick = {
+                    if (isEditing) {
+                        announcementViewModel.updateAnnouncement(
+                            token,
+                            event_id,
+                            announcementViewModel.contentInput,
+                            navController
+                        )
+                    } else {
+                        announcementViewModel.changeDateInput(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
+                        announcementViewModel.createAnnouncement(
+                            token,
+                            announcementViewModel.contentInput,
+                            event_id,
+                            announcementViewModel.dateInput,
+                            navController
+                        )
+                    }
+                },
                 modifier = Modifier.width(120.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFF9FFC9),
                     contentColor = Color.Black
                 ),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                enabled = createUIState.buttonEnabled
             ) {
-                Text("Publish")
+                if (!isEditing) {
+                    Text("Publish")
+                } else {
+                    Text("Update")
+                }
             }
-
         }
     }
 }
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -179,7 +244,13 @@ fun CreateAnnouncementPreview() {
             },
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                CreateAnnouncementView()
+                CreateAnnouncementView(
+                    announcementViewModel = viewModel(),
+                    navController = rememberNavController(),
+                    token = "",
+                    event_id = 0,
+                    isEditing = false,
+                )
             }
         }
     }

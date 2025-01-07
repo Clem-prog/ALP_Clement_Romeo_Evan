@@ -1,6 +1,7 @@
 package com.example.alp_clement_romeo_evan.views
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
 
 @Composable
@@ -26,8 +28,14 @@ fun LoginView(
     navController: NavHostController,
     context: Context
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+
+    LaunchedEffect(authenticationViewModel.dataStatus) {
+        val dataStatus = authenticationViewModel.dataStatus
+        if (dataStatus is AuthenticationStatusUIState.Failed) {
+            Toast.makeText(context, dataStatus.errorMessage, Toast.LENGTH_SHORT).show()
+            authenticationViewModel.clearErrorMessage()
+        }
+    }
 
     Box(
         modifier = Modifier

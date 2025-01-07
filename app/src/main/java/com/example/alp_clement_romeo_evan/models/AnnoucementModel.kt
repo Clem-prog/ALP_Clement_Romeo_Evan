@@ -12,11 +12,11 @@ data class AnnouncementModel (
     val id: Int = 0 ,
     val content: String="",
     val date: String = "",
-    val event_id: Int = 0 // not sure about this part
+    val event_id: Int = 0 // not sure about this part //trust in it
 )
 
 data class AnnouncementRequest (
-    val name: String="",
+    val content: String="",
     val date: String = "",
-    val event_id: Int = 0 // not sure about this part
+    val event_id: Int = 0 // not sure about this part //trust in it
 )
