@@ -9,5 +9,6 @@ enum class PagesEnum() {
     ProfileEdit,
     CreateEvent,
     EventDetail,
-    YourEvents
+    YourEvents,
+    CreateReview
 }
