@@ -28,6 +28,7 @@ import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
 import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
+import com.example.alp_clement_romeo_evan.viewModels.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,10 +37,13 @@ fun ProfileView(
     token: String,
     userId: Int,
     authenticationViewModel: AuthenticationViewModel,
+    homeViewModel: HomeViewModel,
     context: Context,
 ) {
-    LaunchedEffect(token) {
-        authenticationViewModel.getUserInfo(token, userId)
+    if (token.isNotEmpty()) {
+        LaunchedEffect(token) {
+            authenticationViewModel.getUserInfo(token, userId)
+        }
     }
 
     val dataStatus = authenticationViewModel.dataStatus
@@ -140,18 +144,32 @@ fun ProfileView(
 
                 Spacer(modifier = Modifier.height(19.dp))
 
-                Button(
-                    onClick = { navController.navigate(PagesEnum.ProfileEdit.name) },
-                    modifier = Modifier
-                        .width(120.dp)
-                        .align(Alignment.End),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFA1FDF6),
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Edit")
+                Row {
+                    Button(
+                        onClick = { homeViewModel.logoutUser(token, navController) },
+                        modifier = Modifier
+                            .width(120.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFA1FDF6),
+                            contentColor = Color.Black
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Log Out")
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    Button(
+                        onClick = { navController.navigate(PagesEnum.ProfileEdit.name) },
+                        modifier = Modifier
+                            .width(120.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFA1FDF6),
+                            contentColor = Color.Black
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Edit")
+                    }
                 }
             }
         }
@@ -279,7 +297,8 @@ fun ProfileViewPreview() {
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
                 ProfileView(
-                    authenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory),
+                    authenticationViewModel = viewModel(),
+                    homeViewModel = viewModel(),
                     navController = rememberNavController(),
                     token = "",
                     userId = 0,

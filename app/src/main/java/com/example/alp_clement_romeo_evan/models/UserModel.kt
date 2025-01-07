@@ -4,6 +4,10 @@ data class UserResponse(
     val data: UserModel
 )
 
+data class AllUserResponse (
+    val data: List<UserData>
+)
+
 data class LogInResponse(
     val data: UserData
 )

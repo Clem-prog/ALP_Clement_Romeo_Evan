@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,13 +36,36 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.R
+import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
+import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
+import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
+import com.example.alp_clement_romeo_evan.viewModels.EventDetailViewModel
 import com.example.alp_clement_romeo_evan.views.components.EventCard
 import com.example.alp_clement_romeo_evan.views.components.EventCardWithButtons
 
 @Composable
-fun EventHistoryView() {
+fun EventHistoryView(
+    eventDetailViewModel: EventDetailViewModel,
+    authenticationViewModel: AuthenticationViewModel,
+    navController: NavController,
+    token: String,
+    isAdmin: Boolean,
+    user_id: Int
+) {
+    LaunchedEffect(token) {
+        eventDetailViewModel.getAllEvents(token)
+        authenticationViewModel.getAllUser()
+    }
+
+    val dataStatus = eventDetailViewModel.dataStatus
+    val userDataStatus = authenticationViewModel.dataStatus
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -50,14 +74,36 @@ fun EventHistoryView() {
 
     ) {
         Column {
-            EventCardWithButtons() //if this is admin
-            Text(
-                text = "Event History: ",
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(horizontal = 15.dp)
-                    .padding(top = 15.dp)
-            )
+            if (dataStatus is EventDataStatusUIState.GetAllSuccess) {
+                dataStatus.data.forEach { event ->
+                    if (event.isOngoing && isAdmin && user_id == event.user_id) {
+                        EventCardWithButtons(
+                            title = event.title,
+                            date = event.date,
+                            poster = event.poster,
+                            navController = navController,
+                            onClickCard = {
+                                navController.navigate("${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}")
+                            }
+                        )
+                    } //this is admin for now, if event_attended is done nicely, we can add it here.
+                }
+            }
+            if (dataStatus is EventDataStatusUIState.GetAllSuccess) {
+                dataStatus.data.forEach { event ->
+                    if (!event.isOngoing) {
+                        EventCardWithButtons(
+                            title = event.title,
+                            date = event.date,
+                            poster = event.poster,
+                            navController = navController,
+                            onClickCard = {
+                                navController.navigate("${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}")
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -107,7 +153,12 @@ fun EventHistoryPreview() {
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)) // Optional rounded corners
+                        .clip(
+                            RoundedCornerShape(
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            )
+                        )
                 )
             },
             bottomBar = {
@@ -170,7 +221,14 @@ fun EventHistoryPreview() {
             },
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                EventHistoryView()
+                EventHistoryView(
+                    eventDetailViewModel = viewModel(),
+                    authenticationViewModel = viewModel(),
+                    navController = rememberNavController(),
+                    token = "",
+                    isAdmin = false,
+                    user_id = 0
+                )
             }
         }
     }

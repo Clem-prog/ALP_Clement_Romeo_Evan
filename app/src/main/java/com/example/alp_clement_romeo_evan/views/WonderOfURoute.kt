@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
+import android.graphics.pdf.PdfDocument.Page
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -105,20 +106,42 @@ fun WonderOfU(
             )
         }
 
+        composable(route = PagesEnum.YourEvents.name) {
+            ScaffoldMain(
+                navController = navController,
+                content = {
+                    EventHistoryView(
+                        eventDetailViewModel = eventDetailViewModel,
+                        authenticationViewModel = authenticationViewModel,
+                        navController = navController,
+                        token = token.value,
+                        isAdmin = isAdmin.value,
+                        user_id = userId.value
+                    )
+                },
+                title = "Home",
+            )
+        }
+
         composable(
-            route = PagesEnum.EventDetail.name + "/{id}",
+            route = "${PagesEnum.EventDetail.name}/{eventId}/{userId}",
             arguments = listOf(
-                navArgument("id") {type = NavType.IntType}
+                navArgument("eventId") { type = NavType.IntType },
+                navArgument("userId") { type = NavType.IntType }
             )
         ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt("id")
+            val event_id = backStackEntry.arguments?.getInt("eventId")
+            val user_id = backStackEntry.arguments?.getInt("userId")
             ScaffoldMain(
                 navController = navController,
                 content = {
                     EventDetails(
                         eventDetailViewModel = eventDetailViewModel,
-                        event_id = id!!,
-                        token = token.value
+                        authenticationViewModel = authenticationViewModel,
+                        event_id = event_id!!,
+                        token = token.value,
+                        isAdmin = isAdmin.value,
+                        user_id = user_id!!
                     )
                 },
                 title = "Event Details",
@@ -134,6 +157,7 @@ fun WonderOfU(
                         token = token.value,
                         userId = userId.value,
                         authenticationViewModel = authenticationViewModel,
+                        homeViewModel = homeViewModel,
                         context = localContext,
                     )
                 },
@@ -257,7 +281,7 @@ fun ScaffoldMain(
                         }
                         Spacer(Modifier.weight(1f))
                         Button(
-                            onClick = { /* Handle add click */ },
+                            onClick = { navController.navigate(PagesEnum.YourEvents.name) },
                             modifier = Modifier.size(50.dp),
                             contentPadding = PaddingValues(1.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
