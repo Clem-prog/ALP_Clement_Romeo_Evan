@@ -14,12 +14,15 @@ import com.example.alp_clement_romeo_evan.repositories.NetworkAnnouncementReposi
 import com.example.alp_clement_romeo_evan.repositories.NetworkAuthenticationRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkCategoryRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkEventRepository
+import com.example.alp_clement_romeo_evan.repositories.NetworkReviewRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkUserRepository
+import com.example.alp_clement_romeo_evan.repositories.ReviewRepository
 import com.example.alp_clement_romeo_evan.repositories.UserRepository
 import com.example.alp_clement_romeo_evan.services.AnnouncementAPIService
 import com.example.alp_clement_romeo_evan.services.AuthenticationAPIService
 import com.example.alp_clement_romeo_evan.services.CategoryAPIService
 import com.example.alp_clement_romeo_evan.services.EventAPIService
+import com.example.alp_clement_romeo_evan.services.ReviewAPIService
 import com.example.alp_clement_romeo_evan.services.UserAPIService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -35,6 +38,7 @@ interface AppContainer {
     val eventRepository: EventRepository
     val categoryRepository: CategoryRepository
     val announcementRepository: AnnouncementRepository
+    val reviewRepository: ReviewRepository
 }
 
 class DefaultAppContainer(
@@ -75,6 +79,11 @@ class DefaultAppContainer(
 
         retrofit.create(AnnouncementAPIService::class.java)
     }
+    private val reviewRetrofitService: ReviewAPIService by lazy {
+        val retrofit = initRetrofit()
+
+        retrofit.create(ReviewAPIService::class.java)
+    }
 
     // REPOSITORY INIT
     // Passing in the required objects is called dependency injection (DI). It is also known as inversion of control.
@@ -96,6 +105,10 @@ class DefaultAppContainer(
 
     override val announcementRepository: AnnouncementRepository by lazy {
         NetworkAnnouncementRepository(announcementRetrofitService)
+    }
+
+    override val reviewRepository: ReviewRepository by lazy {
+        NetworkReviewRepository(reviewRetrofitService)
     }
 
     private fun initRetrofit(): Retrofit {

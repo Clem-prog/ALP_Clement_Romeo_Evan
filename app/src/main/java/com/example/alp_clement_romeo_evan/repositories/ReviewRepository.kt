@@ -11,9 +11,9 @@ import retrofit2.Call
 interface ReviewRepository {
     fun getAllReviews(token: String): Call<GetAllReviewResponse>
     fun getReviewById(token: String, reviewId: Int): Call<GetReviewResponse>
-    fun createReview(token: String, userId: Int, eventId: Int, rating: Int, comment: String): Call<GeneralResponseModel>
-    fun updateReview(token: String, reviewId: Int, userId: Int, eventId: Int, rating: Int, comment: String): Call<GeneralResponseModel>
-    fun deleteReview(token: String, reviewId: Int): Call<GeneralResponseModel>
+    fun createReview(token: String, userId: Int, eventId: Int, title:String, rating: Int, comment: String): Call<GetReviewResponse>
+    fun updateReview(token: String, reviewId: Int, userId: Int, eventId: Int, title:String, rating: Int, comment: String): Call<GetReviewResponse>
+    fun deleteReview(token: String, reviewId: Int): Call<GetReviewResponse>
 }
 
 class NetworkReviewRepository(
@@ -31,12 +31,13 @@ class NetworkReviewRepository(
         token: String,
         user_id: Int,
         event_id: Int,
+        title: String,
         rating: Int,
         comment: String
-    ): Call<GeneralResponseModel> {
+    ): Call<GetReviewResponse> {
         return reviewAPIService.createReview(
             token,
-            ReviewRequest(user_id, event_id, rating, comment)
+            ReviewRequest(user_id, event_id, title, rating, comment)
         )
     }
 
@@ -45,17 +46,18 @@ class NetworkReviewRepository(
         reviewId: Int,
         userId: Int,
         eventId: Int,
+        title: String,
         rating: Int,
         comment: String
-    ): Call<GeneralResponseModel> {
+    ): Call<GetReviewResponse> {
         return reviewAPIService.updateReview(
             token,
             reviewId,
-            ReviewRequest(userId, eventId, rating, comment)
+            ReviewRequest(userId, eventId, title, rating, comment)
         )
     }
 
-    override fun deleteReview(token: String, reviewId: Int): Call<GeneralResponseModel> {
+    override fun deleteReview(token: String, reviewId: Int): Call<GetReviewResponse> {
         return reviewAPIService.deleteReview(token, reviewId)
     }
 }

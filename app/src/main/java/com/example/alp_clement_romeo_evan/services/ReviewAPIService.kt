@@ -1,7 +1,6 @@
 package com.example.alp_clement_romeo_evan.services
 
 import com.example.alp_clement_romeo_evan.models.ReviewRequest
-import com.example.alp_clement_romeo_evan.models.GeneralResponseModel
 import com.example.alp_clement_romeo_evan.models.GetAllReviewResponse
 import com.example.alp_clement_romeo_evan.models.GetReviewResponse
 import retrofit2.Call
@@ -18,9 +17,9 @@ interface ReviewAPIService {
 
     @GET("/api/review/{id}") fun getReviewById(@Header("X-API-TOKEN") token: String, @Path("id") reviewId: Int): Call<GetReviewResponse>
 
-    @POST("/api/review") fun createReview(@Header("X-API-TOKEN") token: String, @Body review: ReviewRequest): Call<GeneralResponseModel>
+    @POST("/api/review") fun createReview(@Header("X-API-TOKEN") token: String, @Body review: ReviewRequest): Call<GetReviewResponse>
 
-    @PUT("/api/review/{id}") fun updateReview(@Header("X-API-TOKEN") token: String, @Path("id") reviewId: Int, @Body review: ReviewRequest): Call<GeneralResponseModel>
+    @PUT("/api/review/{id}") fun updateReview(@Header("X-API-TOKEN") token: String, @Path("id") reviewId: Int, @Body review: ReviewRequest): Call<GetReviewResponse>
 
-    @DELETE("/api/review/{id}") fun deleteReview(@Header("X-API-TOKEN") token: String, @Path("id") reviewId: Int): Call<GeneralResponseModel>
+    @DELETE("/api/review/{id}") fun deleteReview(@Header("X-API-TOKEN") token: String, @Path("id") reviewId: Int): Call<GetReviewResponse>
 }
