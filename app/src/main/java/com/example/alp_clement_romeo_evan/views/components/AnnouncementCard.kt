@@ -25,11 +25,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.R
+import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.viewModels.AnnouncementViewModel
 
 @Composable
-fun AnnouncementCard() {
+fun AnnouncementCard(
+    name: String,
+    date: String,
+    content: String,
+) {
     var isExpanded by remember { mutableStateOf(false) }
 
     Card(
@@ -50,13 +59,13 @@ fun AnnouncementCard() {
         ) {
             Row {
                 Text(
-                    text = "Event 1",
+                    text = name,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
-                    text = "3h ago",
+                    text = date,
                     fontSize = 15.sp,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
@@ -65,9 +74,7 @@ fun AnnouncementCard() {
         }
 
         Text(
-            text = "Lorem ipsum odor amet, consectetuer adipiscing elit. Fames conubia facilisi platea suspendisse ridiculus lacinia. Vehicula taciti arcu natoque aptent congue nam senectus feugiat natoque. Neque dolor id vulputate lacus platea. Mi ultrices libero posuere fermentum mattis purus convallis. Mi mollis metus magna mi turpis congue vehicula diam.\n" +
-                    "\n" +
-                    "Per netus efficitur sollicitudin ipsum metus condimentum proin lacinia. Convallis hendrerit urna, posuere neque eleifend aenean. Auctor conubia egestas sed elit, eget quisque nam a. Malesuada maecenas dictumst auctor sapien tortor pellentesque lacinia. Accumsan ac ullamcorper faucibus nisl magnis lobortis mattis natoque. Dignissim sollicitudin etiam habitasse velit mauris arcu, ut ad cursus. Accumsan nulla nam vehicula mi dui nunc. Varius aliquam litora fusce semper ullamcorper vel praesent feugiat. Litora ipsum feugiat fusce nostra inceptos tortor eu.",
+            text = content,
             fontSize = 14.sp,
             lineHeight = 20.sp,
             maxLines = if (isExpanded) Int.MAX_VALUE else 3, // Toggle maxLines
@@ -79,7 +86,15 @@ fun AnnouncementCard() {
 }
 
 @Composable
-fun AnnouncementCardWithButton() {
+fun AnnouncementCardWithButton(
+    navController: NavController,
+    announcementViewModel: AnnouncementViewModel,
+    name: String,
+    date: String,
+    content: String,
+    token: String,
+    announcement_id: Int
+) {
     var isExpanded by remember { mutableStateOf(false) }
 
     Column (
@@ -103,13 +118,13 @@ fun AnnouncementCardWithButton() {
             ) {
                 Row {
                     Text(
-                        text = "Event 1",
+                        text = name,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.weight(1f))
                     Text(
-                        text = "3h ago",
+                        text = date,
                         fontSize = 15.sp,
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
@@ -118,9 +133,7 @@ fun AnnouncementCardWithButton() {
             }
 
             Text(
-                text = "Lorem ipsum odor amet, consectetuer adipiscing elit. Fames conubia facilisi platea suspendisse ridiculus lacinia. Vehicula taciti arcu natoque aptent congue nam senectus feugiat natoque. Neque dolor id vulputate lacus platea. Mi ultrices libero posuere fermentum mattis purus convallis. Mi mollis metus magna mi turpis congue vehicula diam.\n" +
-                        "\n" +
-                        "Per netus efficitur sollicitudin ipsum metus condimentum proin lacinia. Convallis hendrerit urna, posuere neque eleifend aenean. Auctor conubia egestas sed elit, eget quisque nam a. Malesuada maecenas dictumst auctor sapien tortor pellentesque lacinia. Accumsan ac ullamcorper faucibus nisl magnis lobortis mattis natoque. Dignissim sollicitudin etiam habitasse velit mauris arcu, ut ad cursus. Accumsan nulla nam vehicula mi dui nunc. Varius aliquam litora fusce semper ullamcorper vel praesent feugiat. Litora ipsum feugiat fusce nostra inceptos tortor eu.",
+                text = content,
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
                 maxLines = if (isExpanded) Int.MAX_VALUE else 3, // Toggle maxLines
@@ -132,7 +145,7 @@ fun AnnouncementCardWithButton() {
             modifier = Modifier.align(Alignment.End)
         ){
             FilledTonalButton(
-                onClick = { },
+                onClick = { navController.navigate("${PagesEnum.UpdateAnnouncement.name}/${announcement_id}") },
                 colors = ButtonDefaults.filledTonalButtonColors(
                     containerColor = Color(0xFF00B7FF),
                 ),
@@ -144,13 +157,13 @@ fun AnnouncementCardWithButton() {
             ) {
                 Image(
                     painter = painterResource(R.drawable.edit),
-                    contentDescription = "comment",
+                    contentDescription = "edit",
                     colorFilter = ColorFilter.tint(Color.White),
                     modifier = Modifier.size(24.dp)
                 )
             }
             FilledTonalButton(
-                onClick = { },
+                onClick = { announcementViewModel.deleteAnnouncement(token, announcement_id) },
                 colors = ButtonDefaults.filledTonalButtonColors(
                     containerColor = Color(0xFFFF3270),
                 ),
@@ -176,6 +189,14 @@ fun AnnouncementCardWithButton() {
 @Composable
 fun AnnouncementPreview() {
     ALP_Clement_Romeo_EvanTheme {
-        AnnouncementCardWithButton()
+        AnnouncementCardWithButton(
+            navController = rememberNavController(),
+            name = "",
+            date = "",
+            announcement_id = 0,
+            content = "",
+            announcementViewModel = viewModel(),
+            token = ""
+        )
     }
 }

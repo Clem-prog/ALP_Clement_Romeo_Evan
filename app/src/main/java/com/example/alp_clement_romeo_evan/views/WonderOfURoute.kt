@@ -1,7 +1,9 @@
 package com.example.alp_clement_romeo_evan.views
 
 import android.graphics.pdf.PdfDocument.Page
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,6 +45,7 @@ import androidx.navigation.navArgument
 import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.WonderOfU
 import com.example.alp_clement_romeo_evan.enums.PagesEnum
+import com.example.alp_clement_romeo_evan.viewModels.AnnouncementViewModel
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
 import com.example.alp_clement_romeo_evan.viewModels.CategoryViewModel
 import com.example.alp_clement_romeo_evan.viewModels.EventDetailViewModel
@@ -50,6 +53,7 @@ import com.example.alp_clement_romeo_evan.viewModels.EventFormViewModel
 import com.example.alp_clement_romeo_evan.viewModels.HomeViewModel
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WonderOfU(
     navController: NavHostController = rememberNavController(),
@@ -57,7 +61,8 @@ fun WonderOfU(
     homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
     eventFormViewModel: EventFormViewModel = viewModel(factory = EventFormViewModel.Factory),
     categoryViewModel: CategoryViewModel = viewModel(factory = CategoryViewModel.Factory),
-    eventDetailViewModel: EventDetailViewModel = viewModel(factory = EventDetailViewModel.Factory)
+    eventDetailViewModel: EventDetailViewModel = viewModel(factory = EventDetailViewModel.Factory),
+    announcementViewModel: AnnouncementViewModel = viewModel(factory = AnnouncementViewModel.Factory)
 ) {
     val localContext = LocalContext.current
     val token = homeViewModel.token.collectAsState()
@@ -180,6 +185,7 @@ fun WonderOfU(
                 title = "Edit Profile",
             )
         }
+
         composable(route = PagesEnum.CreateEvent.name) {
             ScaffoldMain(
                 navController = navController,
@@ -193,6 +199,71 @@ fun WonderOfU(
                     )
                 },
                 title = "Create Event",
+            )
+        }
+
+        composable(
+            route = PagesEnum.Announcements.name,
+        ) {
+            ScaffoldMain(
+                navController = navController,
+                content = {
+                    AnnouncementView(
+                        announcementViewModel = announcementViewModel,
+                        eventDetailViewModel = eventDetailViewModel,
+                        token = token.value,
+                        user_id = userId.value,
+                        isAdmin = isAdmin.value,
+                        navController = navController,
+                    )
+                },
+                title = "Announcements",
+            )
+        }
+
+        composable(
+            route = "${PagesEnum.CreateAnnouncement.name}/{eventId}",
+            arguments = listOf(
+                navArgument("eventId") { type = NavType.IntType },
+            )
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("eventId")
+
+            ScaffoldMain(
+                navController = navController,
+                content = {
+                    CreateAnnouncementView(
+                        announcementViewModel = announcementViewModel,
+                        navController = navController,
+                        token = token.value,
+                        event_id = id!!,
+                        isEditing = false
+                    )
+                },
+                title = "Create Announcement",
+            )
+        }
+
+        composable(
+            route = "${PagesEnum.UpdateAnnouncement.name}/{eventId}",
+            arguments = listOf(
+                navArgument("eventId") { type = NavType.IntType },
+            )
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("eventId")
+
+            ScaffoldMain(
+                navController = navController,
+                content = {
+                    CreateAnnouncementView(
+                        announcementViewModel = announcementViewModel,
+                        navController = navController,
+                        token = token.value,
+                        event_id = id!!, //id in this case is filled with announcement_id rather than event_id
+                        isEditing = true
+                    )
+                },
+                title = "Update Announce",
             )
         }
     }
@@ -294,7 +365,7 @@ fun ScaffoldMain(
                         }
                         Spacer(Modifier.weight(1f))
                         Button(
-                            onClick = { /* Handle event click */ },
+                            onClick = { navController.navigate(PagesEnum.Announcements.name) },
                             modifier = Modifier.size(50.dp),
                             contentPadding = PaddingValues(1.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
