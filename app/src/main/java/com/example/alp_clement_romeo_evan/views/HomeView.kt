@@ -143,19 +143,20 @@ fun HomeView(
                                     username = userDataStatus.userModelData
                                         .find { it.id == event.user_id }?.username ?: "Unknown User"
                                 }
-
-                                EventCard(
-                                    title = event.title,
-                                    date = event.date,
-                                    poster = event.poster,
-                                    name = username,
-                                    navController = navController,
-                                    onClickCard = {
-                                        navController.navigate(
-                                            "${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}"
-                                        )
-                                    }
-                                )
+                                if (event.isOngoing) {
+                                    EventCard(
+                                        title = event.title,
+                                        date = event.date,
+                                        poster = event.poster,
+                                        name = username,
+                                        navController = navController,
+                                        onClickCard = {
+                                            navController.navigate(
+                                                "${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}"
+                                            )
+                                        }
+                                    )
+                                }
                             }
                         }
                     }

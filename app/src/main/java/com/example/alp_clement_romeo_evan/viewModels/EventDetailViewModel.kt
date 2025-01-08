@@ -10,8 +10,10 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.NavHostController
 import com.example.alp_clement_romeo_evan.WonderOfU
 import com.example.alp_clement_romeo_evan.models.ErrorModel
+import com.example.alp_clement_romeo_evan.models.GeneralResponseModel
 import com.example.alp_clement_romeo_evan.models.GetAllEventResponse
 import com.example.alp_clement_romeo_evan.models.GetEventResponse
 import com.example.alp_clement_romeo_evan.repositories.EventRepository
@@ -101,6 +103,80 @@ class EventDetailViewModel(
             } catch (error: IOException) {
                 dataStatus = EventDataStatusUIState.Failed(error.localizedMessage)
                 Log.d("get-user-error", "GET USER ERROR: ${error.localizedMessage}")
+            }
+        }
+    }
+
+    fun markEventAsDone(token: String, eventId: Int) {
+        viewModelScope.launch {
+            dataStatus = EventDataStatusUIState.Loading
+
+            try {
+                val call = eventRepository.markEventAsDone(token, eventId)
+
+                call.enqueue(object : Callback<GetEventResponse> {
+                    override fun onResponse(
+                        call: Call<GetEventResponse>,
+                        res: Response<GetEventResponse>
+                    ) {
+                        if (res.isSuccessful) {
+                            dataStatus = EventDataStatusUIState.Success(res.body()!!.data)
+
+                            getAllEvents(token)
+                        } else {
+                            val errorMessage = Gson().fromJson(
+                                res.errorBody()!!.charStream(),
+                                ErrorModel::class.java
+                            )
+
+                            dataStatus = EventDataStatusUIState.Failed(errorMessage.errors)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<GetEventResponse>, t: Throwable) {
+                        dataStatus = EventDataStatusUIState.Failed(t.localizedMessage)
+                    }
+
+                })
+            } catch (error: IOException) {
+                dataStatus = EventDataStatusUIState.Failed(error.localizedMessage)
+            }
+        }
+    }
+
+    fun deleteEvent(token: String, eventId: Int, navController: NavHostController) {
+        viewModelScope.launch {
+            dataStatus = EventDataStatusUIState.Loading
+
+            try {
+                val call = eventRepository.deleteEvent(token, eventId)
+
+                call.enqueue(object: Callback<GeneralResponseModel> {
+                    override fun onResponse(
+                        call: Call<GeneralResponseModel>,
+                        res: Response<GeneralResponseModel>
+                    ) {
+                        if (res.isSuccessful) {
+                            dataStatus = EventDataStatusUIState.Deleted(res.body()!!.data)
+
+                            getAllEvents(token)
+                        } else {
+                            val errorMessage = Gson().fromJson(
+                                res.errorBody()!!.charStream(),
+                                ErrorModel::class.java
+                            )
+
+                            dataStatus = EventDataStatusUIState.Failed(errorMessage.errors)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
+                        dataStatus = EventDataStatusUIState.Failed(t.localizedMessage)
+                    }
+
+                })
+            } catch (error: IOException) {
+                dataStatus = EventDataStatusUIState.Failed(error.localizedMessage)
             }
         }
     }

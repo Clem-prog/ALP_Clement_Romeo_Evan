@@ -118,6 +118,11 @@ fun EventDetails(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 25.sp,
                             )
+                            Text(
+                                text = "Location: ${dataStatus.data.location}",
+                                fontSize = 15.sp,
+                                modifier = Modifier.padding(bottom = 5.dp)
+                            )
                             Row(
                                 modifier = Modifier.padding(top = 5.dp)
                             ) {
@@ -153,7 +158,7 @@ fun EventDetails(
                         maxLines = if (isExpanded) Int.MAX_VALUE else 6,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .padding(top = 15.dp, bottom = 7.dp)
+                            .padding(top = 20.dp, bottom = 7.dp)
                             .clickable {
                                 isExpanded = !isExpanded
                             }
