@@ -21,6 +21,7 @@ import com.example.alp_clement_romeo_evan.models.ErrorModel
 import com.example.alp_clement_romeo_evan.models.GetEventResponse
 import com.example.alp_clement_romeo_evan.repositories.EventRepository
 import com.example.alp_clement_romeo_evan.repositories.UserRepository
+import com.example.alp_clement_romeo_evan.uiStates.AuthenticationUIState
 import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
 import com.example.alp_clement_romeo_evan.uiStates.EventDetailStatusUIState
 import com.example.alp_clement_romeo_evan.uiStates.EventFormUIState
@@ -30,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -51,8 +53,11 @@ class EventFormViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _eventListState = MutableStateFlow(EventFormUIState())
-    val eventListState: StateFlow<EventFormUIState> = _eventListState.asStateFlow()
+    private val _eventUIState = MutableStateFlow(EventFormUIState())
+    val eventUIState: StateFlow<EventFormUIState>
+        get() {
+            return _eventUIState.asStateFlow()
+        }
 
     var eventId by mutableStateOf(0)
         private set
@@ -92,6 +97,10 @@ class EventFormViewModel(
         titleInput = title
     }
 
+    fun changePosterInput(poster: String) {
+        posterInput = poster
+    }
+
     fun changeIsOngoingInput(isOngoing: Boolean) {
         isOngoingInput = isOngoing
     }
@@ -123,9 +132,31 @@ class EventFormViewModel(
         }
     }
 
+    fun checkCreateForm() {
+        if (
+            titleInput.isNotEmpty() &&
+            descriptionInput.isNotEmpty() &&
+            locationInput.isNotEmpty() &&
+            dateInput.isNotEmpty() &&
+            posterInput.isNotEmpty() &&
+            categoryIdInput != 0
+        ) {
+            _eventUIState.update { currentState ->
+                currentState.copy(
+                    createButtonEnabled = true
+                )
+            }
+        } else {
+            _eventUIState.update { currentState ->
+                currentState.copy(
+                    createButtonEnabled = false
+                )
+            }
+        }
+    }
 
 
-    fun createEvent(navController: NavHostController, token: String, context: Context) {
+    fun createEvent(navController: NavHostController, token: String) {
         viewModelScope.launch {
             submissionStatus = EventDataStatusUIState.Loading
 
@@ -181,12 +212,12 @@ class EventFormViewModel(
         }
     }
 
-    fun updateEvent(token: String, getEvent: () -> Unit) {
+    fun updateEvent(navController: NavHostController, token: String, eventId: Int) {
         viewModelScope.launch {
             submissionStatus = EventDataStatusUIState.Loading
 
             try {
-                val call = eventRepository.updateEvent(token, eventId, titleInput, isOngoingInput, descriptionInput, locationInput, dateInput, posterInput, categoryIdInput)
+                val call = eventRepository.updateEvent(token, eventId, titleInput, descriptionInput, locationInput, dateInput, posterInput, categoryIdInput)
 
                 call.enqueue(object: Callback<GetEventResponse>  {
                     override fun onResponse(
@@ -198,46 +229,11 @@ class EventFormViewModel(
 
                             resetViewModel()
 
-                            getEvent()
-                        } else {
-                            val errorMessage = Gson().fromJson(
-                                res.errorBody()!!.charStream(),
-                                ErrorModel::class.java
-                            )
-
-                            submissionStatus = EventDataStatusUIState.Failed(errorMessage.errors)
-                        }
-                    }
-
-                    override fun onFailure(call: Call<GetEventResponse>, t: Throwable) {
-                        submissionStatus = EventDataStatusUIState.Failed(t.localizedMessage)
-                    }
-
-                })
-            } catch (error: IOException) {
-                submissionStatus = EventDataStatusUIState.Failed(error.localizedMessage)
-            }
-        }
-    }
-
-
-    fun deleteEvent(token: String, eventId: Int, navController: NavHostController) {
-        viewModelScope.launch {
-            submissionStatus = EventDataStatusUIState.Loading
-
-            try {
-                val call = eventRepository.deleteEvent(token, eventId)
-
-                call.enqueue(object: Callback<GetEventResponse> {
-                    override fun onResponse(
-                        call: Call<GetEventResponse>,
-                        res: Response<GetEventResponse>
-                    ) {
-                        if (res.isSuccessful) {
-                            submissionStatus = EventDataStatusUIState.Success(res.body()!!.data)
-
-                            Log.d("delete-status", "Delete status: ${res.body()!!.data}")
-
+                            navController.navigate(PagesEnum.YourEvents.name) {
+                                popUpTo(PagesEnum.CreateEvent.name) {
+                                    inclusive = true
+                                }
+                            }
                         } else {
                             val errorMessage = Gson().fromJson(
                                 res.errorBody()!!.charStream(),
@@ -340,7 +336,6 @@ class EventFormViewModel(
             return@withContext ""
         }
     }
-
 }
 
 

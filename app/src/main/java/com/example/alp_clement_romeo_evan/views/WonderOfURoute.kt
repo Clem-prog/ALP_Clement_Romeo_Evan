@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
+import android.app.FragmentManager.BackStackEntry
 import android.graphics.pdf.PdfDocument.Page
 import android.os.Build
 import android.util.Log
@@ -70,7 +71,13 @@ fun WonderOfU(
     val userId = homeViewModel.id.collectAsState()
 
 
-    NavHost(navController = navController, startDestination = PagesEnum.Start.name) {
+    NavHost(
+        navController = navController, startDestination = if(token.value != "Unknown" && token.value != "") {
+            PagesEnum.Home.name
+        } else {
+            PagesEnum.Start.name
+        }
+    ) {
         composable(route = PagesEnum.Start.name) {
             StartView(
                 navController = navController,
@@ -193,12 +200,40 @@ fun WonderOfU(
                     TestView(
                         navController = navController,
                         eventFormViewModel = eventFormViewModel,
+                        eventDetailViewModel = eventDetailViewModel,
                         categoryViewModel = categoryViewModel,
                         context = localContext,
+                        event_id = 0,
+                        isEditing = false,
                         token = token.value
                     )
                 },
                 title = "Create Event",
+            )
+        }
+
+        composable(
+            route = "${PagesEnum.UpdateEvent.name}/{eventId}",
+            arguments = listOf(
+                navArgument("eventId") { type = NavType.IntType },
+            )
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("eventId")
+            ScaffoldMain(
+                navController = navController,
+                content = {
+                    TestView(
+                        navController = navController,
+                        eventFormViewModel = eventFormViewModel,
+                        eventDetailViewModel = eventDetailViewModel,
+                        categoryViewModel = categoryViewModel,
+                        context = localContext,
+                        event_id = id!!,
+                        isEditing = true,
+                        token = token.value
+                    )
+                },
+                title = "Update Event",
             )
         }
 

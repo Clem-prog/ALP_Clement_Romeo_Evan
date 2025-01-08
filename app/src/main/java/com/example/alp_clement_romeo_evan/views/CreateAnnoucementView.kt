@@ -46,6 +46,10 @@ fun CreateAnnouncementView(
     val createUIState by announcementViewModel.authenticationUIState.collectAsState()
     val dataStatus = announcementViewModel.dataStatus
 
+    LaunchedEffect(token) {
+        announcementViewModel.resetViewModel()
+    }
+
     if (isEditing) {
         LaunchedEffect(event_id) {
             announcementViewModel.getAnnouncementById(token, event_id)
@@ -82,13 +86,13 @@ fun CreateAnnouncementView(
             },
             placeholder = { Text("Insert Announcement Here") },
             modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp),
+                .fillMaxWidth(),
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color.White,
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent
-            )
+            ),
+            minLines = 3
         )
         Box(
             modifier = Modifier
@@ -121,7 +125,7 @@ fun CreateAnnouncementView(
                     containerColor = Color(0xFFF9FFC9),
                     contentColor = Color.Black
                 ),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(20.dp),
                 enabled = createUIState.buttonEnabled
             ) {
                 if (!isEditing) {

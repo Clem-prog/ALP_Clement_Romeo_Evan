@@ -8,6 +8,7 @@ enum class PagesEnum() {
     Profile,
     ProfileEdit,
     CreateEvent,
+    UpdateEvent,
     EventDetail,
     YourEvents,
     CreateAnnouncement,

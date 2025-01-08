@@ -24,7 +24,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
@@ -33,6 +35,7 @@ import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
 import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
+import com.example.alp_clement_romeo_evan.viewModels.EventDetailViewModel
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -108,8 +111,11 @@ fun EventCardWithButtons(
     date: String,
     poster: String,
     event_id: Int,
-    navController: NavController, //for update and create announcement
-    onClickCard: () -> Unit = {}
+    token: String,
+    eventDetailViewModel: EventDetailViewModel,
+    navController: NavHostController, //for update and create announcement
+    onClickCard: () -> Unit = {},
+    onDeleteClick: () -> Unit = {}
 ) {
     val formatter = DateTimeFormatter.ISO_DATE_TIME
     val showDate = OffsetDateTime.parse(date, formatter)
@@ -142,8 +148,11 @@ fun EventCardWithButtons(
                 Column {
                     Text(
                         text = title,
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1, // Limits to one line
+                        overflow = TextOverflow.Ellipsis, // Adds ellipses if the text is too long
+                        modifier = Modifier.widthIn(max = 230.dp)
                     )
                     Text(
                         text = "By You",
@@ -181,7 +190,7 @@ fun EventCardWithButtons(
                 )
             }
             FilledTonalButton(
-                onClick = { },
+                onClick = { eventDetailViewModel.markEventAsDone(token, event_id) },
                 colors = ButtonDefaults.filledTonalButtonColors(
                     containerColor = Color(0xFFFF3270),
                     contentColor = Color.Black
@@ -202,7 +211,7 @@ fun EventCardWithButtons(
             Spacer(Modifier.weight(1f))
 
             FilledTonalButton(
-                onClick = { },
+                onClick = { navController.navigate("${PagesEnum.UpdateEvent.name}/${event_id}") },
                 colors = ButtonDefaults.filledTonalButtonColors(
                     containerColor = Color(0xFF00B7FF),
                 ),
@@ -214,13 +223,13 @@ fun EventCardWithButtons(
             ) {
                 Image(
                     painter = painterResource(R.drawable.edit),
-                    contentDescription = "comment",
+                    contentDescription = "edit",
                     colorFilter = ColorFilter.tint(Color.White),
                     modifier = Modifier.size(24.dp)
                 )
             }
             FilledTonalButton(
-                onClick = { },
+                onClick = { onDeleteClick() },
                 colors = ButtonDefaults.filledTonalButtonColors(
                     containerColor = Color(0xFFFF3270),
                 ),
@@ -252,7 +261,9 @@ fun CardPreview() {
             poster = "",
             event_id = 0,
             navController = rememberNavController(), //for update and create announcement
-            onClickCard = {}
+            onClickCard = {},
+            token = "",
+            eventDetailViewModel = viewModel()
         )
     }
 }
