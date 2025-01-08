@@ -13,5 +13,6 @@ enum class PagesEnum() {
     YourEvents,
     CreateAnnouncement,
     UpdateAnnouncement,
-    Announcements
+    Announcements,
+    CreateReview
 }
