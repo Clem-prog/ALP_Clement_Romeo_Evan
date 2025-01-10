@@ -13,13 +13,11 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ReviewAPIService {
-    @GET("/api/review/all") fun getAllReviews(@Header("X-API-TOKEN") token: String): Call<GetAllReviewResponse>
+    @GET("/api/events/{id}/reviews") fun getReviewById(@Header("X-API-TOKEN") token: String, @Path("id") eventId: Int): Call<GetAllReviewResponse>
 
-    @GET("/api/review/{id}") fun getReviewById(@Header("X-API-TOKEN") token: String, @Path("id") reviewId: Int): Call<GetReviewResponse>
+    @POST("/api/reviews") fun createReview(@Header("X-API-TOKEN") token: String, @Body review: ReviewRequest): Call<GetReviewResponse>
 
-    @POST("/api/review") fun createReview(@Header("X-API-TOKEN") token: String, @Body review: ReviewRequest): Call<GetReviewResponse>
+    @PUT("/api/reviews/{id}") fun updateReview(@Header("X-API-TOKEN") token: String, @Path("id") reviewId: Int, @Body review: ReviewRequest): Call<GetReviewResponse>
 
-    @PUT("/api/review/{id}") fun updateReview(@Header("X-API-TOKEN") token: String, @Path("id") reviewId: Int, @Body review: ReviewRequest): Call<GetReviewResponse>
-
-    @DELETE("/api/review/{id}") fun deleteReview(@Header("X-API-TOKEN") token: String, @Path("id") reviewId: Int): Call<GetReviewResponse>
+    @DELETE("/api/reviews/{id}") fun deleteReview(@Header("X-API-TOKEN") token: String, @Path("id") reviewId: Int): Call<GetReviewResponse>
 }

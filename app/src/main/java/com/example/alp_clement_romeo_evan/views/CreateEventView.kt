@@ -14,25 +14,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import com.example.alp_clement_romeo_evan.uiStates.AnnouncementStatusUIState
 import com.example.alp_clement_romeo_evan.uiStates.CategoryUIState
 import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
-import com.example.alp_clement_romeo_evan.uiStates.EventFormUIState
-import com.example.alp_clement_romeo_evan.uiStates.StringDataStatusUIState
 import com.example.alp_clement_romeo_evan.viewModels.CategoryViewModel
 import com.example.alp_clement_romeo_evan.viewModels.EventDetailViewModel
 import com.example.alp_clement_romeo_evan.viewModels.EventFormViewModel
-import java.io.File
 import java.util.Calendar
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -40,7 +32,7 @@ import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TestView(
+fun CreateEventView(
     eventFormViewModel: EventFormViewModel,
     eventDetailViewModel: EventDetailViewModel,
     categoryViewModel: CategoryViewModel,

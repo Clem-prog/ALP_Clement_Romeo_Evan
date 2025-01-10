@@ -27,6 +27,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -73,7 +74,7 @@ class ReviewViewModel(
     var commentInput by mutableStateOf("")
         private set
     
-    var ratingInput by mutableStateOf(1)
+    var ratingInput by mutableStateOf(0)
         private set
     
     fun changeTitleInput(title: String) {
@@ -100,7 +101,27 @@ class ReviewViewModel(
         }
     }
 
-    fun createReview(navController: NavHostController, token: String) {
+    fun checkCreateForm() {
+        if (
+            titleInput.isNotEmpty() &&
+            commentInput.isNotEmpty() &&
+            ratingInput != 0
+        ) {
+            _ReviewListState.update { currentState ->
+                currentState.copy(
+                    buttonEnabled = true
+                )
+            }
+        } else {
+            _ReviewListState.update { currentState ->
+                currentState.copy(
+                    buttonEnabled = false
+                )
+            }
+        }
+    }
+
+    fun createReview(navController: NavHostController, token: String, eventId: Int) {
         viewModelScope.launch {
             submissionStatus = ReviewDataStatusUIState.Loading
 
@@ -110,7 +131,7 @@ class ReviewViewModel(
                 val call = reviewRepository.createReview(
                     token,
                     userIdInput,
-                    eventIdInput,
+                    eventId,
                     titleInput,
                     ratingInput,
                     commentInput
@@ -238,5 +259,6 @@ class ReviewViewModel(
         titleInput = ""
         ratingInput = 0
         commentInput = ""
+        checkCreateForm()
     }
 }
