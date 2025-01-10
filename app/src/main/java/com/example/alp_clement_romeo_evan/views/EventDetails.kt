@@ -1,7 +1,9 @@
 package com.example.alp_clement_romeo_evan.views
 
+import AttendedEventViewModel
 import android.annotation.SuppressLint
 import android.graphics.Paint.Align
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -60,11 +62,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.alp_clement_romeo_evan.R
+import com.example.alp_clement_romeo_evan.models.AttendedEventModel
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.AttendedEventDetailUIState
 import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
 import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
 import com.example.alp_clement_romeo_evan.uiStates.ReviewDataStatusUIState
@@ -74,7 +79,10 @@ import com.example.alp_clement_romeo_evan.viewModels.EventDetailViewModel
 import com.example.alp_clement_romeo_evan.viewModels.ReviewViewModel
 import com.example.alp_clement_romeo_evan.views.components.EventCard
 import com.example.alp_clement_romeo_evan.views.components.ReviewCard
+import java.time.Instant
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,6 +91,7 @@ import java.time.format.DateTimeFormatter
 fun EventDetails(
     eventDetailViewModel: EventDetailViewModel,
     authenticationViewModel: AuthenticationViewModel,
+    attendedEventViewModel: AttendedEventViewModel,
     reviewViewModel: ReviewViewModel,
     navController: NavHostController,
     event_id: Int,
@@ -93,13 +102,16 @@ fun EventDetails(
     var isExpanded by remember { mutableStateOf(false) }
     LaunchedEffect(token) {
         eventDetailViewModel.getEventDetails(token, event_id)
+        attendedEventViewModel.getAllAttendedEvents(token)
     }
     LaunchedEffect(user_id) {
         authenticationViewModel.getEventUser(token, user_id)
     }
     var dataStatus = eventDetailViewModel.dataStatus
     var userDataStatus = authenticationViewModel.dataStatus
+    var attendanceDataStatus = attendedEventViewModel.dataStatus
     var reviewDataStatus = reviewViewModel.dataStatus
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -146,7 +158,7 @@ fun EventDetails(
                             ) {
                                 if (userDataStatus is AuthenticationStatusUIState.GotUser) {
                                     Image(
-                                        painter = painterResource(R.drawable.character_yi),
+                                        painter = painterResource(R.drawable.profile),
                                         contentDescription = "Profile Picture",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -183,24 +195,33 @@ fun EventDetails(
                     )
                     if (!isAdmin) {
                         if (dataStatus.data.isOngoing) {
+                            val isEventAttended = attendanceDataStatus is AttendedEventDetailUIState.GotAll &&
+                                    attendanceDataStatus.data.any { it.event_id == event_id }
+
                             Button(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 5.dp)
                                     .size(50.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFF9FFC9),
+                                    containerColor = if (isEventAttended) Color.Gray else Color(0xFFF9FFC9),
                                     contentColor = Color.Black
                                 ),
                                 shape = RoundedCornerShape(10.dp),
-                                onClick = {}
+                                onClick = {
+                                    if (!isEventAttended) {
+                                        val currentDate = Instant.now().toString()
+                                        attendedEventViewModel.createAttendedEvent(token, currentDate, event_id, navController)
+                                    }
+                                },
+                                enabled = !isEventAttended
                             ) {
                                 Text(
-                                    text = "Attend Event",
+                                    text = if (isEventAttended) "Already Attending" else "Attend Event",
                                     fontSize = 15.sp
                                 )
                             }
-                        }else {
+                        } else {
                             TextField(
                                 value = reviewViewModel.titleInput,
                                 onValueChange = { reviewViewModel.changeTitleInput(it) },
@@ -289,7 +310,6 @@ fun EventDetails(
                             ReviewCard()*/ //this is for admins and history dont erase for now
                         }
                     }
-
                 }
 
             else ->
@@ -426,6 +446,7 @@ fun DetailsPreview() {
                 EventDetails(
                     eventDetailViewModel = viewModel(),
                     authenticationViewModel = viewModel(),
+                    attendedEventViewModel = viewModel(),
                     reviewViewModel = viewModel(),
                     navController = rememberNavController(),
                     event_id = 0,

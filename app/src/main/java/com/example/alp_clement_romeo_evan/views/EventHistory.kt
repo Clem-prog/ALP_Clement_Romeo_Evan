@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
+import AttendedEventViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +45,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.AttendedEventDetailUIState
 import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
 import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
@@ -55,6 +57,7 @@ import com.example.alp_clement_romeo_evan.views.components.EventCardWithButtons
 fun EventHistoryView(
     eventDetailViewModel: EventDetailViewModel,
     authenticationViewModel: AuthenticationViewModel,
+    attendedEventViewModel: AttendedEventViewModel,
     navController: NavHostController,
     token: String,
     isAdmin: Boolean,
@@ -63,22 +66,29 @@ fun EventHistoryView(
     LaunchedEffect(token) {
         eventDetailViewModel.getAllEvents(token)
         authenticationViewModel.getAllUser()
+        attendedEventViewModel.getAllAttendedEvents(token)
     }
 
     val dataStatus = eventDetailViewModel.dataStatus
     val userDataStatus = authenticationViewModel.dataStatus
+    val attendanceDataStatus = attendedEventViewModel.dataStatus
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .background(Color(0xFFFFE7C9))
-
     ) {
         Column {
             if (dataStatus is EventDataStatusUIState.GetAllSuccess) {
-                dataStatus.data.forEach { event ->
-                    if (event.isOngoing && isAdmin && user_id == event.user_id) {
+                val attendedEventIds = if (attendanceDataStatus is AttendedEventDetailUIState.GotAll) {
+                    attendanceDataStatus.data.map { it.event_id }.toSet()
+                } else {
+                    emptySet()
+                }
+                val ongoingEvents = dataStatus.data.filter { it.isOngoing }
+                ongoingEvents.forEach { event ->
+                    if (isAdmin && user_id == event.user_id) {
                         EventCardWithButtons(
                             title = event.title,
                             date = event.date,
@@ -94,32 +104,65 @@ fun EventHistoryView(
                                 eventDetailViewModel.deleteEvent(token, event.id, navController)
                             }
                         )
-                    } //this is admin for now, if event_attended is done nicely, we can add it here.
-                }
-            }
-            Text(
-                text = "Event History: ",
-                modifier = Modifier.padding(top = 5.dp, bottom = 2.dp).padding(horizontal = 17.dp)
-            )
-            if (dataStatus is EventDataStatusUIState.GetAllSuccess) {
-                dataStatus.data.forEach { event ->
-                    if (!event.isOngoing) {
+                    } else if (!isAdmin && attendedEventIds.contains(event.id)) {
+                        var username = "Unknown User"
+                        if (userDataStatus is AuthenticationStatusUIState.GotAllUser) {
+                            username = userDataStatus.userModelData
+                                .find { it.id == event.user_id }?.username ?: "Unknown User"
+                        }
                         EventCard(
                             title = event.title,
                             date = event.date,
                             poster = event.poster,
                             navController = navController,
-                            name = "",
+                            onClickCard = {
+                                navController.navigate("${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}")
+                            },
+                            name = username,
+                        )
+                    }
+                }
+
+                Text(
+                    text = "Event History: ",
+                    modifier = Modifier
+                        .padding(top = 5.dp, bottom = 2.dp)
+                        .padding(horizontal = 17.dp)
+                )
+
+                val pastEvents = dataStatus.data.filterNot { it.isOngoing }
+                pastEvents.forEach { event ->
+                    var username = "Unknown User"
+                    if (userDataStatus is AuthenticationStatusUIState.GotAllUser) {
+                        username = userDataStatus.userModelData
+                            .find { it.id == event.user_id }?.username ?: "Unknown User"
+                    }
+                    val attendedEventIds = if (attendanceDataStatus is AttendedEventDetailUIState.GotAll) {
+                        attendanceDataStatus.data.map { it.event_id }.toSet()
+                    } else {
+                        emptySet()
+                    }
+                    if (isAdmin && user_id == event.user_id) {
+                        EventCard(
+                            title = event.title,
+                            date = event.date,
+                            poster = event.poster,
+                            navController = navController,
+                            name = if (isAdmin) "Managed by You" else username,
                             onClickCard = {
                                 navController.navigate("${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}")
                             }
                         )
+                    } else if (!isAdmin && attendedEventIds.contains(event.id)) {
+
                     }
                 }
             }
         }
     }
 }
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true, showSystemUi = true)
@@ -238,9 +281,10 @@ fun EventHistoryPreview() {
                     eventDetailViewModel = viewModel(),
                     authenticationViewModel = viewModel(),
                     navController = rememberNavController(),
+                    attendedEventViewModel = viewModel(),
                     token = "",
                     isAdmin = false,
-                    user_id = 0
+                    user_id = 0,
                 )
             }
         }

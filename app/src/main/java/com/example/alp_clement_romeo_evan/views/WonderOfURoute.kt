@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
+import AttendedEventViewModel
 import android.app.FragmentManager.BackStackEntry
 import android.graphics.pdf.PdfDocument.Page
 import android.os.Build
@@ -63,7 +64,8 @@ fun WonderOfU(
     eventFormViewModel: EventFormViewModel = viewModel(factory = EventFormViewModel.Factory),
     categoryViewModel: CategoryViewModel = viewModel(factory = CategoryViewModel.Factory),
     eventDetailViewModel: EventDetailViewModel = viewModel(factory = EventDetailViewModel.Factory),
-    announcementViewModel: AnnouncementViewModel = viewModel(factory = AnnouncementViewModel.Factory)
+    announcementViewModel: AnnouncementViewModel = viewModel(factory = AnnouncementViewModel.Factory),
+    attendedEventViewModel: AttendedEventViewModel = viewModel(factory = AttendedEventViewModel.Factory)
 ) {
     val localContext = LocalContext.current
     val token = homeViewModel.token.collectAsState()
@@ -125,6 +127,7 @@ fun WonderOfU(
                     EventHistoryView(
                         eventDetailViewModel = eventDetailViewModel,
                         authenticationViewModel = authenticationViewModel,
+                        attendedEventViewModel = attendedEventViewModel,
                         navController = navController,
                         token = token.value,
                         isAdmin = isAdmin.value,
@@ -150,6 +153,8 @@ fun WonderOfU(
                     EventDetails(
                         eventDetailViewModel = eventDetailViewModel,
                         authenticationViewModel = authenticationViewModel,
+                        attendedEventViewModel = attendedEventViewModel,
+                        navController = navController,
                         event_id = event_id!!,
                         token = token.value,
                         isAdmin = isAdmin.value,

@@ -17,6 +17,6 @@ data class AttendedEventModel(
 
 data class AttendedEventRequest(
     val date_signed: String = "",
+    val event_id: Int = 0,
     val user_id: Int = 0,
-    val event_id: Int = 0
 )
