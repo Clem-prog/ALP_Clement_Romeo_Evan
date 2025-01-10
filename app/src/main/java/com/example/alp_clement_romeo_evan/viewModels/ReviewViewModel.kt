@@ -73,7 +73,7 @@ class ReviewViewModel(
     var commentInput by mutableStateOf("")
         private set
     
-    var ratingInput by mutableStateOf(0)
+    var ratingInput by mutableStateOf(1)
         private set
     
     fun changeTitleInput(title: String) {
@@ -100,7 +100,7 @@ class ReviewViewModel(
         }
     }
 
-    fun createReview(navController: NavHostController, token: String, context: Context) {
+    fun createReview(navController: NavHostController, token: String) {
         viewModelScope.launch {
             submissionStatus = ReviewDataStatusUIState.Loading
 

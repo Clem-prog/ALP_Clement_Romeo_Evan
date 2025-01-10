@@ -22,14 +22,24 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -62,8 +72,11 @@ import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
 import com.example.alp_clement_romeo_evan.uiStates.AttendedEventDetailUIState
 import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
 import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
+import com.example.alp_clement_romeo_evan.uiStates.ReviewDataStatusUIState
+import com.example.alp_clement_romeo_evan.uiStates.ReviewUIState
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
 import com.example.alp_clement_romeo_evan.viewModels.EventDetailViewModel
+import com.example.alp_clement_romeo_evan.viewModels.ReviewViewModel
 import com.example.alp_clement_romeo_evan.views.components.EventCard
 import com.example.alp_clement_romeo_evan.views.components.ReviewCard
 import java.time.Instant
@@ -72,12 +85,14 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("NewApi")
 @Composable
 fun EventDetails(
     eventDetailViewModel: EventDetailViewModel,
     authenticationViewModel: AuthenticationViewModel,
     attendedEventViewModel: AttendedEventViewModel,
+    reviewViewModel: ReviewViewModel,
     navController: NavHostController,
     event_id: Int,
     token: String,
@@ -95,7 +110,7 @@ fun EventDetails(
     var dataStatus = eventDetailViewModel.dataStatus
     var userDataStatus = authenticationViewModel.dataStatus
     var attendanceDataStatus = attendedEventViewModel.dataStatus
-    Log.d("event id", "${event_id}")
+    var reviewDataStatus = reviewViewModel.dataStatus
 
     Box(
         modifier = Modifier
@@ -207,7 +222,92 @@ fun EventDetails(
                                 )
                             }
                         } else {
-                            // Put the input form for review here
+                            TextField(
+                                value = reviewViewModel.titleInput,
+                                onValueChange = { reviewViewModel.changeTitleInput(it) },
+                                label = { Text("Title") },
+                                colors = TextFieldDefaults.textFieldColors(
+                                    containerColor = Color.White,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    focusedIndicatorColor = Color.Transparent
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
+                            )
+
+                            TextField(
+                                value = reviewViewModel.commentInput,
+                                onValueChange = { reviewViewModel.changeCommentInput(it) },
+                                label = { Text("Details") },
+                                colors = TextFieldDefaults.textFieldColors(
+                                    containerColor = Color.White,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    focusedIndicatorColor = Color.Transparent
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(150.dp)
+                                    .padding(vertical = 8.dp)
+                            )
+                            @Composable
+                            fun RatingRows(
+                                reviewViewModel: ReviewViewModel,
+                                ratings: List<Int>
+                            ) {
+                                Column {
+                                    ratings.forEach { rating ->
+                                        Row(
+                                            modifier = Modifier.padding(vertical = 5.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = "Rating: ",
+                                                fontSize = 16.sp
+                                            )
+                                            Text(
+                                                text = "$rating.0",
+                                                fontSize = 16.sp
+                                            )
+                                            Icon(
+                                                imageVector = Icons.Default.ArrowDropDown,
+                                                contentDescription = "Dropdown",
+                                                modifier = Modifier.clickable {
+                                                    reviewViewModel.changeRatingInput(rating)
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            Button(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 5.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFF9FFC9),
+                                    contentColor = Color.Black
+                                ),
+                                shape = RoundedCornerShape(25.dp),
+                                onClick = {
+                                    reviewViewModel.createReview(navController, token)
+                                }
+                            ) {
+                                Text(
+                                    text = "Add",
+                                    fontSize = 15.sp
+                                )
+                            }
+                        }
+                    } else {
+                        if (!dataStatus.data.isOngoing) {
+                            /*Text(
+                                text = "Review(s):",
+                                modifier = Modifier.padding(bottom = 5.dp)
+                            )
+                            ReviewCard()
+                            ReviewCard()*/ //this is for admins and history dont erase for now
                         }
                     }
                 }
@@ -347,6 +447,7 @@ fun DetailsPreview() {
                     eventDetailViewModel = viewModel(),
                     authenticationViewModel = viewModel(),
                     attendedEventViewModel = viewModel(),
+                    reviewViewModel = viewModel(),
                     navController = rememberNavController(),
                     event_id = 0,
                     token = "",
