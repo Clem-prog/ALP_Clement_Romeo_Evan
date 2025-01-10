@@ -30,6 +30,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.enums.PagesEnum
@@ -53,7 +55,7 @@ import com.example.alp_clement_romeo_evan.views.components.EventCardWithButtons
 fun EventHistoryView(
     eventDetailViewModel: EventDetailViewModel,
     authenticationViewModel: AuthenticationViewModel,
-    navController: NavController,
+    navController: NavHostController,
     token: String,
     isAdmin: Boolean,
     user_id: Int
@@ -83,13 +85,22 @@ fun EventHistoryView(
                             poster = event.poster,
                             navController = navController,
                             event_id = event.id,
+                            eventDetailViewModel = eventDetailViewModel,
+                            token = token,
                             onClickCard = {
                                 navController.navigate("${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}")
+                            },
+                            onDeleteClick = {
+                                eventDetailViewModel.deleteEvent(token, event.id, navController)
                             }
                         )
                     } //this is admin for now, if event_attended is done nicely, we can add it here.
                 }
             }
+            Text(
+                text = "Event History: ",
+                modifier = Modifier.padding(top = 5.dp, bottom = 2.dp).padding(horizontal = 17.dp)
+            )
             if (dataStatus is EventDataStatusUIState.GetAllSuccess) {
                 dataStatus.data.forEach { event ->
                     if (!event.isOngoing) {

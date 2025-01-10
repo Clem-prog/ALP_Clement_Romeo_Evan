@@ -22,6 +22,16 @@ data class EventModel(
 
 )
 
+data class EventUpdateRequest(
+    val title: String = "",
+    val description: String = "",
+    val location: String = "",
+    val date: String = "",
+    val poster: String = "",
+    val category_id: Int = 0,
+    val user_id: Int = 0
+)
+
 data class EventRequest(
     val title: String = "",
     val isOngoing: Boolean = false,
