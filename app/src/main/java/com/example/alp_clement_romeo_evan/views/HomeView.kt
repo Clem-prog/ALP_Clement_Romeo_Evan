@@ -119,48 +119,38 @@ fun HomeView(
             LazyColumn {
                 when (eventDataStatus) {
                     is EventDataStatusUIState.GetAllSuccess -> {
-                        val filteredEvents = if (dataStatus is CategoryUIState.Success) {
-                            val categoryId = dataStatus.data.find { it.name == selectedCategory }?.id
-                            eventDataStatus.data.filter { event ->
-                                categoryId == null || categoryId == event.category_id
-                            }
-                        } else {
-                            eventDataStatus.data
-                        }
+                        val ongoingEvents = eventDataStatus.data.filter { it.isOngoing }
 
-                        if (filteredEvents.isEmpty()) {
+                        if (ongoingEvents.isEmpty()) {
                             item {
                                 Text(
-                                    text = "No events available for this category!",
+                                    text = "No ongoing events found!",
                                     modifier = Modifier.padding(horizontal = 16.dp)
                                 )
                             }
                         } else {
-                            items(filteredEvents.size) { index ->
-                                val event = filteredEvents[index]
+                            items(ongoingEvents.size) { index ->
+                                val event = ongoingEvents[index]
                                 var username = ""
                                 if (userDataStatus is AuthenticationStatusUIState.GotAllUser) {
                                     username = userDataStatus.userModelData
                                         .find { it.id == event.user_id }?.username ?: "Unknown User"
                                 }
-                                if (event.isOngoing) {
-                                    EventCard(
-                                        title = event.title,
-                                        date = event.date,
-                                        poster = event.poster,
-                                        name = username,
-                                        navController = navController,
-                                        onClickCard = {
-                                            navController.navigate(
-                                                "${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}"
-                                            )
-                                        }
-                                    )
-                                }
+                                EventCard(
+                                    title = event.title,
+                                    date = event.date,
+                                    poster = event.poster,
+                                    name = username,
+                                    navController = navController,
+                                    onClickCard = {
+                                        navController.navigate(
+                                            "${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}"
+                                        )
+                                    }
+                                )
                             }
                         }
                     }
-
                     else -> item {
                         Text(
                             text = "Nothing here!",

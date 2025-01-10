@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
+import AttendedEventViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,20 +41,85 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.R
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.AttendedEventDetailUIState
+import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
+import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
 import com.example.alp_clement_romeo_evan.views.components.MemberListCard
 
 @Composable
 fun MembersView(
-
+    attendedEventViewModel: AttendedEventViewModel,
+    authenticationViewModel: AuthenticationViewModel,
+    event_id: Int,
+    token: String,
 ) {
-    LazyColumn(
-        modifier = Modifier.padding(2.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(8.dp)
+    LaunchedEffect(token) {
+        attendedEventViewModel.getAllEventMembers(token, event_id)
+        authenticationViewModel.getAllUser()
+    }
+
+    val dataStatus = attendedEventViewModel.dataStatus
+    val userDataStatus = authenticationViewModel.dataStatus
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFFFE7C9))
+
     ) {
-        item {
-            MemberListCard()
+        LazyColumn(
+            modifier = Modifier.padding(2.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            when (dataStatus) {
+                is AttendedEventDetailUIState.GotAll -> {
+                    when (userDataStatus) {
+                        is AuthenticationStatusUIState.GotAllUser -> {
+                            val attendedUserIds = dataStatus.data.map { it.user_id }
+                            val members = userDataStatus.userModelData.filter { it.id in attendedUserIds }
+
+                            if (members.isNotEmpty()) {
+                                items(members.size) { index ->
+                                    val member = members[index]
+                                    MemberListCard(
+                                        name = member.username,
+                                    )
+                                }
+                            } else {
+                                item {
+                                    Text(
+                                        text = "No members found for this event.",
+                                        modifier = Modifier.padding(16.dp),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+                            }
+                        }
+                        else -> {
+                            item {
+                                Text(
+                                    text = "Failed to load members.",
+                                    modifier = Modifier.padding(16.dp),
+                                    fontSize = 16.sp,
+                                )
+                            }
+                        }
+                    }
+                }
+                else -> {
+                    item {
+                        Text(
+                            text = "Failed to load attendees.",
+                            modifier = Modifier.padding(16.dp),
+                            fontSize = 16.sp
+                        )
+                    }
+                }
+            }
         }
+
     }
 }
 
@@ -168,7 +236,12 @@ fun MembersPreview() {
             },
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                MembersView()
+                MembersView(
+                    attendedEventViewModel = viewModel(),
+                    authenticationViewModel = viewModel(),
+                    event_id = viewModel(),
+                    token = ""
+                )
             }
         }
     }

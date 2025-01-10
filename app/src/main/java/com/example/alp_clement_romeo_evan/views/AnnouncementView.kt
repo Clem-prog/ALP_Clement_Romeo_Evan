@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
+import AttendedEventViewModel
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -40,8 +41,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.R
+import com.example.alp_clement_romeo_evan.models.AttendedEventModel
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
 import com.example.alp_clement_romeo_evan.uiStates.AnnouncementStatusUIState
+import com.example.alp_clement_romeo_evan.uiStates.AttendedEventDetailUIState
 import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
 import com.example.alp_clement_romeo_evan.viewModels.AnnouncementViewModel
 import com.example.alp_clement_romeo_evan.viewModels.EventDetailViewModel
@@ -60,18 +63,21 @@ import java.time.format.DateTimeFormatter
 fun AnnouncementView(
     announcementViewModel: AnnouncementViewModel,
     eventDetailViewModel: EventDetailViewModel,
+    attendedEventViewModel: AttendedEventViewModel,
     navController: NavController,
     token: String,
     user_id: Int,
     isAdmin: Boolean,
 ) {
-    LaunchedEffect (token) {
+    LaunchedEffect(token) {
         announcementViewModel.getAllAnnouncement(token)
         eventDetailViewModel.getAllEvents(token)
+        attendedEventViewModel.getAllAttendedEvents(token)
     }
 
     val eventDataStatus = eventDetailViewModel.dataStatus
     val dataStatus = announcementViewModel.dataStatus
+    val attendanceDataStatus = attendedEventViewModel.dataStatus
 
     Box(
         modifier = Modifier
@@ -87,6 +93,7 @@ fun AnnouncementView(
                             is EventDataStatusUIState.GetAllSuccess -> {
                                 eventDataStatus.data.filter { it.user_id == user_id }
                             }
+
                             else -> emptyList()
                         }
 
@@ -122,8 +129,47 @@ fun AnnouncementView(
                                 )
                             }
                         }
-                    } //else (for non-admin, use event_attended)
+                    } else {
+                        val attendedEvents = when (attendanceDataStatus) {
+                            is AttendedEventDetailUIState.GotAll -> {
+                                attendanceDataStatus.data
+                            }
+                            else -> emptyList()
+                        }
+
+                        val attendedEventIds = attendedEvents.map { it.event_id }
+
+                        val filteredAnnouncements = dataStatus.data.filter {
+                            it.event_id in attendedEventIds
+                        }
+
+                        if (filteredAnnouncements.isNotEmpty()) {
+                            items(filteredAnnouncements.size) { index ->
+                                val announcement = filteredAnnouncements[index]
+
+                                if (eventDataStatus is EventDataStatusUIState.GetAllSuccess) {
+                                    val event = eventDataStatus.data.find { it.id == announcement.event_id }
+
+                                    if (event != null) {
+                                        AnnouncementCard(
+                                            name = event.title,
+                                            date = formatTimeAgo(announcement.date),
+                                            content = announcement.content
+                                        )
+                                    }
+                                }
+                            }
+                        } else {
+                            item {
+                                Text(
+                                    text = "No announcements found.",
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                            }
+                        }
+                    }
                 }
+
                 else -> {
                     item {
                         Text(
@@ -144,7 +190,8 @@ fun formatTimeAgo(uploadTime: String): String {
     val uploadedAt = OffsetDateTime.parse(uploadTime, formatter).toLocalDateTime()
 
     val now = LocalDateTime.now()
-    val nowInUTC = now.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime()
+    val nowInUTC =
+        now.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime()
 
     val duration = Duration.between(uploadedAt, nowInUTC)
 
@@ -204,7 +251,12 @@ fun AnnouncementPreview() {
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)) // Optional rounded corners
+                        .clip(
+                            RoundedCornerShape(
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            )
+                        ) // Optional rounded corners
                 )
             },
             bottomBar = {
@@ -270,6 +322,7 @@ fun AnnouncementPreview() {
                 AnnouncementView(
                     announcementViewModel = viewModel(),
                     eventDetailViewModel = viewModel(),
+                    attendedEventViewModel = viewModel(),
                     token = "",
                     user_id = 0,
                     isAdmin = false,

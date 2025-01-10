@@ -1,10 +1,7 @@
 package com.example.alp_clement_romeo_evan.views
 
 import AttendedEventViewModel
-import android.app.FragmentManager.BackStackEntry
-import android.graphics.pdf.PdfDocument.Page
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -45,7 +42,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.alp_clement_romeo_evan.R
-import com.example.alp_clement_romeo_evan.WonderOfU
 import com.example.alp_clement_romeo_evan.enums.PagesEnum
 import com.example.alp_clement_romeo_evan.viewModels.AnnouncementViewModel
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
@@ -53,6 +49,8 @@ import com.example.alp_clement_romeo_evan.viewModels.CategoryViewModel
 import com.example.alp_clement_romeo_evan.viewModels.EventDetailViewModel
 import com.example.alp_clement_romeo_evan.viewModels.EventFormViewModel
 import com.example.alp_clement_romeo_evan.viewModels.HomeViewModel
+import com.example.alp_clement_romeo_evan.viewModels.ReviewDetailViewModel
+import com.example.alp_clement_romeo_evan.viewModels.ReviewViewModel
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -65,7 +63,9 @@ fun WonderOfU(
     categoryViewModel: CategoryViewModel = viewModel(factory = CategoryViewModel.Factory),
     eventDetailViewModel: EventDetailViewModel = viewModel(factory = EventDetailViewModel.Factory),
     announcementViewModel: AnnouncementViewModel = viewModel(factory = AnnouncementViewModel.Factory),
-    attendedEventViewModel: AttendedEventViewModel = viewModel(factory = AttendedEventViewModel.Factory)
+    attendedEventViewModel: AttendedEventViewModel = viewModel(factory = AttendedEventViewModel.Factory),
+    reviewViewModel: ReviewViewModel = viewModel(factory = ReviewViewModel.Factory),
+    reviewDetailViewModel: ReviewDetailViewModel = viewModel(factory = ReviewDetailViewModel.Factory)
 ) {
     val localContext = LocalContext.current
     val token = homeViewModel.token.collectAsState()
@@ -134,7 +134,7 @@ fun WonderOfU(
                         user_id = userId.value
                     )
                 },
-                title = "Home",
+                title = "Your Event(s)",
             )
         }
 
@@ -154,11 +154,14 @@ fun WonderOfU(
                         eventDetailViewModel = eventDetailViewModel,
                         authenticationViewModel = authenticationViewModel,
                         attendedEventViewModel = attendedEventViewModel,
+                        reviewViewModel = reviewViewModel,
+                        reviewDetailViewModel = reviewDetailViewModel,
                         navController = navController,
                         event_id = event_id!!,
                         token = token.value,
                         isAdmin = isAdmin.value,
-                        user_id = user_id!!
+                        currentUser = userId.value,
+                        user_id = user_id!!,
                     )
                 },
                 title = "Event Details",
@@ -202,7 +205,7 @@ fun WonderOfU(
             ScaffoldMain(
                 navController = navController,
                 content = {
-                    TestView(
+                    CreateEventView(
                         navController = navController,
                         eventFormViewModel = eventFormViewModel,
                         eventDetailViewModel = eventDetailViewModel,
@@ -227,7 +230,7 @@ fun WonderOfU(
             ScaffoldMain(
                 navController = navController,
                 content = {
-                    TestView(
+                    CreateEventView(
                         navController = navController,
                         eventFormViewModel = eventFormViewModel,
                         eventDetailViewModel = eventDetailViewModel,
@@ -251,6 +254,7 @@ fun WonderOfU(
                     AnnouncementView(
                         announcementViewModel = announcementViewModel,
                         eventDetailViewModel = eventDetailViewModel,
+                        attendedEventViewModel = attendedEventViewModel,
                         token = token.value,
                         user_id = userId.value,
                         isAdmin = isAdmin.value,
@@ -304,6 +308,28 @@ fun WonderOfU(
                     )
                 },
                 title = "Update Announce",
+            )
+        }
+
+        composable(
+            route = "${PagesEnum.MemberList.name}/{eventId}",
+            arguments = listOf(
+                navArgument("eventId") { type = NavType.IntType },
+            )
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("eventId")
+
+            ScaffoldMain(
+                navController = navController,
+                content = {
+                    MembersView(
+                        event_id = id!!,
+                        attendedEventViewModel = attendedEventViewModel,
+                        authenticationViewModel = authenticationViewModel,
+                        token = token.value
+                    )
+                },
+                title = "Members",
             )
         }
     }

@@ -148,13 +148,22 @@ fun EventHistoryView(
                             date = event.date,
                             poster = event.poster,
                             navController = navController,
-                            name = if (isAdmin) "Managed by You" else username,
+                            name = "Managed by You",
                             onClickCard = {
                                 navController.navigate("${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}")
                             }
                         )
                     } else if (!isAdmin && attendedEventIds.contains(event.id)) {
-
+                        EventCard(
+                            title = event.title,
+                            date = event.date,
+                            poster = event.poster,
+                            navController = navController,
+                            name = username,
+                            onClickCard = {
+                                navController.navigate("${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}")
+                            }
+                        )
                     }
                 }
             }
