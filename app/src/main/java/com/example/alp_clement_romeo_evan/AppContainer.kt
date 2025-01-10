@@ -7,10 +7,12 @@ import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.alp_clement_romeo_evan.repositories.AnnouncementRepository
+import com.example.alp_clement_romeo_evan.repositories.AttendedEventRepository
 import com.example.alp_clement_romeo_evan.repositories.AuthenticationRepository
 import com.example.alp_clement_romeo_evan.repositories.CategoryRepository
 import com.example.alp_clement_romeo_evan.repositories.EventRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkAnnouncementRepository
+import com.example.alp_clement_romeo_evan.repositories.NetworkAttendedEventRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkAuthenticationRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkCategoryRepository
 import com.example.alp_clement_romeo_evan.repositories.NetworkEventRepository
@@ -19,6 +21,7 @@ import com.example.alp_clement_romeo_evan.repositories.NetworkUserRepository
 import com.example.alp_clement_romeo_evan.repositories.ReviewRepository
 import com.example.alp_clement_romeo_evan.repositories.UserRepository
 import com.example.alp_clement_romeo_evan.services.AnnouncementAPIService
+import com.example.alp_clement_romeo_evan.services.AttendedEventAPIService
 import com.example.alp_clement_romeo_evan.services.AuthenticationAPIService
 import com.example.alp_clement_romeo_evan.services.CategoryAPIService
 import com.example.alp_clement_romeo_evan.services.EventAPIService
@@ -39,6 +42,7 @@ interface AppContainer {
     val categoryRepository: CategoryRepository
     val announcementRepository: AnnouncementRepository
     val reviewRepository: ReviewRepository
+    val attendedEventRepository : AttendedEventRepository
 }
 
 class DefaultAppContainer(
@@ -79,10 +83,17 @@ class DefaultAppContainer(
 
         retrofit.create(AnnouncementAPIService::class.java)
     }
+
     private val reviewRetrofitService: ReviewAPIService by lazy {
         val retrofit = initRetrofit()
 
         retrofit.create(ReviewAPIService::class.java)
+    }
+
+    private val attendedEventRetrofitService: AttendedEventAPIService by lazy {
+        val retrofit = initRetrofit()
+
+        retrofit.create(AttendedEventAPIService::class.java)
     }
 
     // REPOSITORY INIT
@@ -109,6 +120,10 @@ class DefaultAppContainer(
 
     override val reviewRepository: ReviewRepository by lazy {
         NetworkReviewRepository(reviewRetrofitService)
+    }
+
+    override val attendedEventRepository: AttendedEventRepository by lazy {
+        NetworkAttendedEventRepository(attendedEventRetrofitService)
     }
 
     private fun initRetrofit(): Retrofit {
