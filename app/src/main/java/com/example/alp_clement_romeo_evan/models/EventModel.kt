@@ -9,7 +9,6 @@ data class GetEventResponse (
 )
 
 data class EventModel(
-
     val id: Int = 0,
     val title: String = "",
     val isOngoing: Boolean = false,
