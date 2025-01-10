@@ -164,30 +164,38 @@ fun EventDetails(
                             }
                     )
                     if (!isAdmin) {
-                        Button(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 5.dp)
-                                .size(50.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFF9FFC9),
-                                contentColor = Color.Black
-                            ),
-                            shape = RoundedCornerShape(10.dp),
-                            onClick = {}
-                        ) {
-                            Text(
-                                text = "Attend Event",
-                                fontSize = 15.sp
+                        if (dataStatus.data.isOngoing) {
+                            Button(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 5.dp)
+                                    .size(50.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFF9FFC9),
+                                    contentColor = Color.Black
+                                ),
+                                shape = RoundedCornerShape(10.dp),
+                                onClick = {}
+                            ) {
+                                Text(
+                                    text = "Attend Event",
+                                    fontSize = 15.sp
+                                )
+                            }
+                        } else {
+                            //put the input form for review here
+                        }
+                    } else {
+                        if (!dataStatus.data.isOngoing) {
+                            /*Text(
+                                text = "Review(s):",
+                                modifier = Modifier.padding(bottom = 5.dp)
                             )
+                            ReviewCard()
+                            ReviewCard()*/ //this is for admins and history dont erase for now
                         }
                     }
-                    /*Text(
-                        text = "Review(s):",
-                        modifier = Modifier.padding(bottom = 5.dp)
-                    )
-                    ReviewCard()
-                    ReviewCard()*/ //this is for admins and history dont erase for now
+
                 }
 
             else ->
