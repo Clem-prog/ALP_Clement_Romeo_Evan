@@ -14,13 +14,13 @@ import retrofit2.http.Path
 
 interface AttendedEventAPIService {
 
-    @GET("api/attendedevent") // route for all this isnt final, will be finish tomorrow
+    @GET("/api/attendance") // route for all this isnt final, will be finish tomorrow
     fun getAllAttendedEvents (@Header("X-API-TOKEN") token: String): Call<GetAllAttendedEventResponse>
 
-    @GET("api/attendedevents/{id}")
-    fun getAttendedEventById (@Header("X-API-TOKEN") token: String, @Path("id") attendedeventId: Int): Call<GetAttendedEventResponse>
+    @GET("/api/attendance/event/{id}")
+    fun getAllEventMembers (@Header("X-API-TOKEN") token: String, @Path("id") eventId: Int): Call<GetAllAttendedEventResponse>
 
-    @POST("api/attendedevents")
-    fun createAttendedEvent(@Header("X-API-TOKEN") token: String, @Body attendedeventModel: AttendedEventRequest): Call<GetAttendedEventResponse>
+    @POST("/api/attendance")
+    fun createAttendedEvent(@Header("X-API-TOKEN") token: String, @Body attendedEventModel: AttendedEventRequest): Call<GetAttendedEventResponse>
 
 }

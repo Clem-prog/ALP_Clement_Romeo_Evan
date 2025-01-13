@@ -1,5 +1,6 @@
 package com.example.alp_clement_romeo_evan.repositories
 
+import android.util.Log
 import com.example.alp_clement_romeo_evan.models.AttendedEventRequest
 import com.example.alp_clement_romeo_evan.models.GetAllAttendedEventResponse
 import com.example.alp_clement_romeo_evan.models.GetAttendedEventResponse
@@ -11,10 +12,9 @@ interface AttendedEventRepository {
     fun createAttendedEvent(
         token: String,
         dateSigned: String,
-        userId: Int,
         eventId: Int
     ): Call<GetAttendedEventResponse>
-    fun getAttendedEventById(token: String, attendedEventId: Int): Call<GetAttendedEventResponse>
+    fun getAllEventMembers(token: String, eventId: Int): Call<GetAllAttendedEventResponse>
 }
 
 class NetworkAttendedEventRepository(
@@ -27,17 +27,16 @@ class NetworkAttendedEventRepository(
     override fun createAttendedEvent(
         token: String,
         dateSigned: String,
-        userId: Int,
         eventId: Int
     ): Call<GetAttendedEventResponse> {
+        Log.d("API Request", "Token: $token, Event ID: $eventId, Date Signed: $dateSigned")
         return attendedEventAPIService.createAttendedEvent(
             token,
-            AttendedEventRequest(date_signed = dateSigned, user_id = userId, event_id = eventId)
+            AttendedEventRequest(dateSigned, eventId)
         )
     }
 
-    override fun getAttendedEventById(token: String, attendedEventId: Int): Call<GetAttendedEventResponse> {
-        return attendedEventAPIService.getAttendedEventById(token, attendedEventId)
+    override fun getAllEventMembers(token: String, eventId: Int): Call<GetAllAttendedEventResponse> {
+        return attendedEventAPIService.getAllEventMembers(token, eventId)
     }
-
 }

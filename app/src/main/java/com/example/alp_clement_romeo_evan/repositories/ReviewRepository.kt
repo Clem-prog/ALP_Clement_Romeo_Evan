@@ -9,8 +9,7 @@ import com.example.alp_clement_romeo_evan.services.ReviewAPIService
 import retrofit2.Call
 
 interface ReviewRepository {
-    fun getAllReviews(token: String): Call<GetAllReviewResponse>
-    fun getReviewById(token: String, reviewId: Int): Call<GetReviewResponse>
+    fun getReviewById(token: String, reviewId: Int): Call<GetAllReviewResponse>
     fun createReview(token: String, userId: Int, eventId: Int, title:String, rating: Int, comment: String): Call<GetReviewResponse>
     fun updateReview(token: String, reviewId: Int, userId: Int, eventId: Int, title:String, rating: Int, comment: String): Call<GetReviewResponse>
     fun deleteReview(token: String, reviewId: Int): Call<GetReviewResponse>
@@ -19,12 +18,8 @@ interface ReviewRepository {
 class NetworkReviewRepository(
     private val reviewAPIService: ReviewAPIService
 ) : ReviewRepository {
-    override fun getAllReviews(token: String): Call<GetAllReviewResponse> {
-        return reviewAPIService.getAllReviews(token)
-    }
-
-    override fun getReviewById(token: String, reviewId: Int): Call<GetReviewResponse> {
-        return reviewAPIService.getReviewById(token, reviewId)
+    override fun getReviewById(token: String, eventId: Int): Call<GetAllReviewResponse> {
+        return reviewAPIService.getReviewById(token, eventId)
     }
 
     override fun createReview(

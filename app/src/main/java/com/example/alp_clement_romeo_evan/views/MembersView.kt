@@ -1,6 +1,6 @@
 package com.example.alp_clement_romeo_evan.views
 
-import android.util.Log
+import AttendedEventViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,8 +14,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -27,8 +28,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,41 +38,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.alp_clement_romeo_evan.R
-import com.example.alp_clement_romeo_evan.enums.PagesEnum
-import com.example.alp_clement_romeo_evan.models.EventModel
-import com.example.alp_clement_romeo_evan.repositories.CategoryRepository
 import com.example.alp_clement_romeo_evan.ui.theme.ALP_Clement_Romeo_EvanTheme
+import com.example.alp_clement_romeo_evan.uiStates.AttendedEventDetailUIState
 import com.example.alp_clement_romeo_evan.uiStates.AuthenticationStatusUIState
-import com.example.alp_clement_romeo_evan.uiStates.CategoryUIState
-import com.example.alp_clement_romeo_evan.uiStates.EventDataStatusUIState
 import com.example.alp_clement_romeo_evan.viewModels.AuthenticationViewModel
-import com.example.alp_clement_romeo_evan.viewModels.CategoryViewModel
-import com.example.alp_clement_romeo_evan.viewModels.EventDetailViewModel
-import com.example.alp_clement_romeo_evan.views.components.EventCard
-import com.example.alp_clement_romeo_evan.views.components.categoriesButton
+import com.example.alp_clement_romeo_evan.views.components.MemberListCard
 
 @Composable
-fun HomeView(
-    categoryViewModel: CategoryViewModel,
-    eventDetailViewModel: EventDetailViewModel,
+fun MembersView(
+    attendedEventViewModel: AttendedEventViewModel,
     authenticationViewModel: AuthenticationViewModel,
-    navController: NavController,
+    event_id: Int,
     token: String,
-    isAdmin: Boolean
 ) {
     LaunchedEffect(token) {
-        categoryViewModel.getAllCategories(token)
-        eventDetailViewModel.getAllEvents(token)
+        attendedEventViewModel.getAllEventMembers(token, event_id)
         authenticationViewModel.getAllUser()
     }
 
-    val (selectedCategory, setSelectedCategory) = rememberSaveable { mutableStateOf("") }
-    val dataStatus = categoryViewModel.dataStatus
-    val eventDataStatus = eventDetailViewModel.dataStatus
+    val dataStatus = attendedEventViewModel.dataStatus
     val userDataStatus = authenticationViewModel.dataStatus
 
     Box(
@@ -82,101 +67,66 @@ fun HomeView(
             .background(Color(0xFFFFE7C9))
 
     ) {
-        Column {
-            LazyRow(
-                modifier = Modifier.padding(vertical = 10.dp),
-            ) {
-                when (dataStatus) {
-                    is CategoryUIState.Success -> {
-                        item {
-                            categoriesButton(
-                                categoryName = "All",
-                                isSelected = selectedCategory == "",
-                                onCategorySelected = { selectedCategoryName ->
-                                    setSelectedCategory("")
-                                }
-                            )
-                        }
-                        items(dataStatus.data.size) { index ->
-                            val category = dataStatus.data[index]
-                            categoriesButton(
-                                categoryName = category.name,
-                                isSelected = selectedCategory == category.name,
-                                onCategorySelected = { selectedCategoryName ->
-                                    setSelectedCategory(selectedCategoryName)
-                                }
-                            )
-                        }
-                    }
-                    else -> item {
-                        Text(
-                            text = "No categories here!",
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    }
-                }
-            }
-            LazyColumn {
-                when (eventDataStatus) {
-                    is EventDataStatusUIState.GetAllSuccess -> {
-                        val filteredEvents = if (dataStatus is CategoryUIState.Success) {
-                            val categoryId = dataStatus.data.find { it.name == selectedCategory }?.id
-                            eventDataStatus.data.filter { event ->
-                                categoryId == null || categoryId == event.category_id
-                            }
-                        } else {
-                            eventDataStatus.data
-                        }
+        LazyColumn(
+            modifier = Modifier.padding(2.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            when (dataStatus) {
+                is AttendedEventDetailUIState.GotAll -> {
+                    when (userDataStatus) {
+                        is AuthenticationStatusUIState.GotAllUser -> {
+                            val attendedUserIds = dataStatus.data.map { it.user_id }
+                            val members = userDataStatus.userModelData.filter { it.id in attendedUserIds }
 
-                        if (filteredEvents.isEmpty()) {
-                            item {
-                                Text(
-                                    text = "No events available for this category!",
-                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                )
-                            }
-                        } else {
-                            items(filteredEvents.size) { index ->
-                                val event = filteredEvents[index]
-                                var username = ""
-                                if (userDataStatus is AuthenticationStatusUIState.GotAllUser) {
-                                    username = userDataStatus.userModelData
-                                        .find { it.id == event.user_id }?.username ?: "Unknown User"
+                            if (members.isNotEmpty()) {
+                                items(members.size) { index ->
+                                    val member = members[index]
+                                    MemberListCard(
+                                        name = member.username,
+                                    )
                                 }
-
-                                if (event.isOngoing) {
-                                    EventCard(
-                                        title = event.title,
-                                        date = event.date,
-                                        poster = event.poster,
-                                        name = username,
-                                        onClickCard = {
-                                            navController.navigate(
-                                                "${PagesEnum.EventDetail.name}/${event.id}/${event.user_id}"
-                                            )
-                                        },
-                                        navController = navController
+                            } else {
+                                item {
+                                    Text(
+                                        text = "No members found for this event.",
+                                        modifier = Modifier.padding(16.dp),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
                             }
                         }
+                        else -> {
+                            item {
+                                Text(
+                                    text = "Failed to load members.",
+                                    modifier = Modifier.padding(16.dp),
+                                    fontSize = 16.sp,
+                                )
+                            }
+                        }
                     }
-                    else -> item {
+                }
+                else -> {
+                    item {
                         Text(
-                            text = "Nothing here!",
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            text = "Failed to load attendees.",
+                            modifier = Modifier.padding(16.dp),
+                            fontSize = 16.sp
                         )
                     }
                 }
             }
         }
+
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun HomePreview() {
+fun MembersPreview() {
     ALP_Clement_Romeo_EvanTheme {
         Scaffold(
             topBar = {
@@ -286,13 +236,11 @@ fun HomePreview() {
             },
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                HomeView(
-                    categoryViewModel = viewModel(),
-                    eventDetailViewModel = viewModel(),
+                MembersView(
+                    attendedEventViewModel = viewModel(),
                     authenticationViewModel = viewModel(),
-                    navController = rememberNavController(),
-                    token = "",
-                    isAdmin = false
+                    event_id = viewModel(),
+                    token = ""
                 )
             }
         }

@@ -58,7 +58,7 @@ fun ProfileEditView(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(R.drawable.character_yi), // Replace with your image resource
+                painter = painterResource(R.drawable.profile), // Replace with your image resource
                 contentDescription = "Profile Picture",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
