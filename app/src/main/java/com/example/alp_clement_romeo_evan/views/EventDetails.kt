@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -160,6 +161,7 @@ fun EventDetails(
                                 text = dataStatus.data.title,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 25.sp,
+                                modifier = Modifier.width(200.dp)
                             )
                             Text(
                                 text = "Location: ${dataStatus.data.location}",
